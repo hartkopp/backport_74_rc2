@@ -213,7 +213,7 @@ index cd9bb2629420..5d8a44c27696 100644
  	return ret;
  }
 diff --git a/net/can/raw.c b/net/can/raw.c
-index df6ee875c08a..b50b4eea2127 100644
+index 62adfa4b5d00..d63334da1fcf 100644
 --- a/net/can/raw.c
 +++ b/net/can/raw.c
 @@ -755,31 +755,44 @@ static int raw_getsockopt(struct socket *sock, int level, int optname,

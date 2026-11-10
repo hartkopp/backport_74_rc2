@@ -53,7 +53,8 @@ Zusätzlich (nicht in der ursprünglichen Liste, aber im Mail-Satz enthalten):
   aufsetzen, mit dem `20bab8b88baa` in den jeweiligen Branch gelandet ist.
 - Keine der 18 FAILED-Mails nennt "Possible dependencies".
 - **`d74307196492`** (drivers/net/can/dev/skb.c) ist bisher nur für 7.3
-  gemeldet. Für die älteren Branches gibt es weder OK noch FAIL.
+  gemeldet. Für die älteren Branches gibt es weder OK noch FAIL. Zuständig
+  ist Marc Kleine-Budde, nicht Teil dieses Repos.
 
 ## Verifikation gegen gregkh/linux (Stand der Branches: 06.11.2026)
 
@@ -102,7 +103,7 @@ Commit-Messages und als Kurzfassung in `linux-X.Y.y/README.md`.
 | #4 `0f3ad9ab40e3` | angepasst | angepasst | angepasst | angepasst | angepasst | nur Kontext |
 | #5 `43c973a0887d` | angepasst | angepasst | angepasst | angepasst | angepasst | angepasst |
 | Patches im Set | 6 | 3 | 3 | 3 | 3 | 3 |
-| Build-Test | offen | offen | offen | offen | offen | offen |
+| Build-Test | offen (1. Lauf: `READ_ONCE(dev->reg_state)` auf Bitfeld, behoben) | offen (wie 5.10) | offen | offen | offen | offen |
 
 Wichtigste strukturelle Unterschiede zu Mainline:
 
@@ -111,7 +112,8 @@ Wichtigste strukturelle Unterschiede zu Mainline:
 - **#4**: `raw_setsockopt_locked()` (aus `1e5185c09058`) gibt es nur in 6.18.
   Davor wird RTNL direkt in `raw_setsockopt()` entfernt. Bis 6.12 hält
   `so->dev` und bis 5.15 auch `ro->dev` eine ungetrackte Referenz
-  (`dev_hold()`).
+  (`dev_hold()`). In 5.10/5.15 ist `dev->reg_state` ein Bitfeld und wird
+  ohne `READ_ONCE()` gelesen.
 - **#5**: Überall nutzt `raw_getsockopt()` noch `copy_to_user()`/`put_user()`
   statt `getsockopt_iter`. Die Kopie und das `put_user()` bei `-ERANGE`
   wandern hinter `release_sock()`. Bis 6.12 kopiert `raw_setsockopt()` schon
