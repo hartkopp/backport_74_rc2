@@ -25,6 +25,7 @@ nie gelandet sind (siehe [linux-5.10.y/README.md](linux-5.10.y/README.md)).
 | `linux-X.Y.y/README.md` | Anpassungen, Prüfliste und `git send-email`-Befehl pro Branch |
 | [`configs/`](configs/) | Minimale Kernel-Configs (allnoconfig + CAN) pro Branch |
 | [`scripts/`](scripts/) | Build-Test-Scripts |
+| [`finsrc/`](finsrc/), [`VERIFY.md`](VERIFY.md) | Finale Dateistände master/Branches und "Diff der Diffs"-Verifikation |
 
 Erarbeitet wurden die Backports auf dem Mirror
 [gregkh/linux](https://github.com/gregkh/linux), Stand der Branch-Spitzen

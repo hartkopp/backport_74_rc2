@@ -1,0 +1,385 @@
+=== linux-5.10.y
+  af_can.c:
+    can_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_can_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_can_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || skb->len != CAN_MTU)) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || skb->len != CAN_MTU)) {
+    canfd_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_canfd_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_canfd_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || skb->len != CANFD_MTU)) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || skb->len != CANFD_MTU)) {
+  bcm.c: identical to upstream
+  gw.c: identical to upstream
+  isotp.c: identical to upstream
+  raw.c:
+    struct raw_sock: DIFF CHANGED
+        before master: struct net_device *dev;
+        before master: netdevice_tracker dev_tracker;
+        after  master: netdevice_tracker dev_tracker;
+    raw_notify(): DIFF CHANGED
+        before master: if (ro->dev != dev)
+        before branch: if (ro->ifindex != dev->ifindex)
+        before master: if (ro->bound) {
+        before branch: if (ro->bound)
+        before master: }
+        before master: ro->dev = NULL;
+        after  branch: dev_put(dev);
+    raw_init(): DIFF CHANGED
+        before master: ro->dev = NULL;
+    raw_release(): DIFF CHANGED
+        before master: rtnl_lock();
+        before master: if (ro->dev) {
+        before master: raw_disable_allfilters(dev_net(ro->dev), ro->dev, sk);
+        after  master: raw_disable_allfilters(net, ro->dev, sk);
+        before branch: if (ro->ifindex) {
+        before branch: struct net_device *dev;
+        before branch: dev = dev_get_by_index(sock_net(sk), ro->ifindex);
+        before branch: if (dev) {
+        before branch: raw_disable_allfilters(dev_net(dev), dev, sk);
+        before branch: dev_put(dev);
+        before branch: }
+        after  branch: raw_disable_allfilters(sock_net(sk), ro->dev, sk);
+        after  branch: dev_put(ro->dev);
+        before master: ro->dev = NULL;
+        before master: rtnl_unlock();
+    raw_bind(): DIFF CHANGED
+        before master: struct net_device *dev = NULL;
+        before master: rtnl_lock();
+        before branch: struct net_device *dev;
+        before branch: dev_put(dev);
+        before master: goto out_put_dev;
+        before branch: goto out;
+        before master: if (err)
+        before master: goto out_put_dev;
+        before branch: dev_put(dev);
+        before master: if (ro->dev) {
+        before master: raw_disable_allfilters(dev_net(ro->dev), ro->dev, sk);
+        before master: /* drop reference to old ro->dev */
+        before branch: if (ro->ifindex) {
+        before branch: struct net_device *dev;
+        before branch: dev = dev_get_by_index(sock_net(sk), ro->ifindex);
+        before branch: if (dev) {
+        before branch: raw_disable_allfilters(dev_net(dev), dev, sk);
+        before branch: dev_put(dev);
+        before branch: }
+        before master: /* bind() ok -> hold a reference for new ro->dev */
+        before master: ro->dev = dev;
+        before master: if (ro->dev)
+        after  branch: dev_put(ro->dev);
+        before master: out_put_dev:
+        before master: /* remove potential reference from dev_get_by_index() */
+        before master: dev_put(dev);
+        before master: rtnl_unlock();
+        after  branch: dev_hold(ro->dev);
+        after  branch: if (dev)
+    raw_getsockopt(): DIFF CHANGED
+        before master: case CAN_RAW_FILTER: {
+        before branch: case CAN_RAW_FILTER:
+        before master: if (copy_to_iter(ro->filter, len, &opt->iter_out) != len)
+        before branch: if (copy_to_user(optval, ro->filter, len))
+        after  master: if (copy_to_iter(filter, len, &opt->iter_out) != len)
+        after  branch: if (copy_to_user(optval, filter, len))
+        before master: }
+    raw_setsockopt() (+ _locked): DIFF CHANGED (restructured upstream, compare the changes)
+        upstream change (235 lines, not shown)
+        backport change:
+          -rtnl_lock();
+          -if (ro->bound && ro->ifindex) {
+          -dev = dev_get_by_index(sock_net(sk), ro->ifindex);
+          -if (!dev) {
+          +/* The reg_state check is only a shortcut: On a concurrent
+          +* unregistration or namespace change raw_notify() waits for
+          +* lock_sock() and removes the filters set here.
+          +*/
+          +dev = ro->dev;
+          +if (ro->bound && dev && dev->reg_state != NETREG_REGISTERED) {
+          -}
+          -dev_put(dev);
+          -rtnl_unlock();
+          -rtnl_lock();
+          -if (ro->bound && ro->ifindex) {
+          -dev = dev_get_by_index(sock_net(sk), ro->ifindex);
+          -if (!dev) {
+          +/* lockless shortcut, see CAN_RAW_FILTER */
+          +dev = ro->dev;
+          +if (ro->bound && dev && dev->reg_state != NETREG_REGISTERED) {
+          -}
+          -dev_put(dev);
+          -rtnl_unlock();
+  can-ml.h: identical to upstream
+  netns-can.h: identical to upstream
+
+=== linux-5.15.y
+  af_can.c:
+    can_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_can_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_can_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || skb->len != CAN_MTU)) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || skb->len != CAN_MTU)) {
+    canfd_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_canfd_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_canfd_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || skb->len != CANFD_MTU)) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || skb->len != CANFD_MTU)) {
+  bcm.c: identical to upstream
+  gw.c: identical to upstream
+  isotp.c: identical to upstream
+  raw.c:
+    raw_release(): DIFF CHANGED
+        after  master: raw_disable_allfilters(net, ro->dev, sk);
+        after  branch: raw_disable_allfilters(sock_net(sk), ro->dev, sk);
+    raw_getsockopt(): DIFF CHANGED
+        before master: case CAN_RAW_FILTER: {
+        before branch: case CAN_RAW_FILTER:
+        after  branch: int fsize = 0;
+        after  master: int fsize = ro->count * sizeof(struct can_filter);
+        after  branch: fsize = ro->count * sizeof(struct can_filter);
+        after  master: if (filter) {
+        after  master: if (copy_to_iter(filter, len, &opt->iter_out) != len)
+        after  branch: if (err == -ERANGE) {
+        before master: if (copy_to_iter(ro->filter, len, &opt->iter_out) != len)
+        before branch: if (copy_to_user(optval, ro->filter, len))
+        after  branch: } else if (filter) {
+        after  branch: if (copy_to_user(optval, filter, len))
+        before master: }
+    raw_setsockopt() (+ _locked): DIFF CHANGED (restructured upstream, compare the changes)
+        upstream change (235 lines, not shown)
+        backport change:
+          -rtnl_lock();
+          +/* The reg_state check is only a shortcut: On a concurrent
+          +* unregistration or namespace change raw_notify() waits for
+          +* lock_sock() and removes the filters set here.
+          +*/
+          -if (ro->bound && dev) {
+          -if (dev->reg_state != NETREG_REGISTERED) {
+          +if (ro->bound && dev && dev->reg_state != NETREG_REGISTERED) {
+          -}
+          -rtnl_unlock();
+          -rtnl_lock();
+          +/* lockless shortcut, see CAN_RAW_FILTER */
+          -if (ro->bound && dev) {
+          -if (dev->reg_state != NETREG_REGISTERED) {
+          +if (ro->bound && dev && dev->reg_state != NETREG_REGISTERED) {
+          -}
+          -rtnl_unlock();
+  can-ml.h: identical to upstream
+  netns-can.h: identical to upstream
+
+=== linux-6.1.y
+  af_can.c:
+    can_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_can_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !can_is_can_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_can_skb(skb))) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || !can_is_can_skb(skb))) {
+    canfd_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_canfd_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !can_is_canfd_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_canfd_skb(skb))) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || !can_is_canfd_skb(skb))) {
+    canxl_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_canxl_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !can_is_canxl_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_canxl_skb(skb))) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || !can_is_canxl_skb(skb))) {
+  bcm.c: identical to upstream
+  gw.c: identical to upstream
+  isotp.c: identical to upstream
+  raw.c:
+    raw_release(): DIFF CHANGED
+        after  master: raw_disable_allfilters(net, ro->dev, sk);
+        after  branch: raw_disable_allfilters(sock_net(sk), ro->dev, sk);
+    raw_getsockopt(): DIFF CHANGED
+        before master: case CAN_RAW_FILTER: {
+        before branch: case CAN_RAW_FILTER:
+        after  branch: int fsize = 0;
+        after  master: int fsize = ro->count * sizeof(struct can_filter);
+        after  branch: fsize = ro->count * sizeof(struct can_filter);
+        after  master: if (filter) {
+        after  master: if (copy_to_iter(filter, len, &opt->iter_out) != len)
+        after  branch: if (err == -ERANGE) {
+        before master: if (copy_to_iter(ro->filter, len, &opt->iter_out) != len)
+        before branch: if (copy_to_user(optval, ro->filter, len))
+        after  branch: } else if (filter) {
+        after  branch: if (copy_to_user(optval, filter, len))
+        before master: }
+    raw_setsockopt() (+ _locked): DIFF CHANGED (restructured upstream, compare the changes)
+        upstream change (235 lines, not shown)
+        backport change:
+          -rtnl_lock();
+          +/* The reg_state check is only a shortcut: On a concurrent
+          +* unregistration or namespace change raw_notify() waits for
+          +* lock_sock() and removes the filters set here.
+          +*/
+          -if (ro->bound && dev) {
+          -if (dev->reg_state != NETREG_REGISTERED) {
+          +if (ro->bound && dev && READ_ONCE(dev->reg_state) != NETREG_REGISTERED) {
+          -}
+          -rtnl_unlock();
+          -rtnl_lock();
+          +/* lockless shortcut, see CAN_RAW_FILTER */
+          -if (ro->bound && dev) {
+          -if (dev->reg_state != NETREG_REGISTERED) {
+          +if (ro->bound && dev && READ_ONCE(dev->reg_state) != NETREG_REGISTERED) {
+          -}
+          -rtnl_unlock();
+  can-ml.h: identical to upstream
+  netns-can.h: identical to upstream
+
+=== linux-6.6.y
+  af_can.c:
+    can_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_can_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !can_is_can_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_can_skb(skb))) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || !can_is_can_skb(skb))) {
+    canfd_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_canfd_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !can_is_canfd_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_canfd_skb(skb))) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || !can_is_canfd_skb(skb))) {
+    canxl_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_canxl_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !can_is_canxl_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_canxl_skb(skb))) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || !can_is_canxl_skb(skb))) {
+  bcm.c: identical to upstream
+  gw.c: identical to upstream
+  isotp.c: identical to upstream
+  raw.c:
+    raw_release(): DIFF CHANGED
+        after  master: raw_disable_allfilters(net, ro->dev, sk);
+        after  branch: raw_disable_allfilters(sock_net(sk), ro->dev, sk);
+    raw_getsockopt(): DIFF CHANGED
+        before master: case CAN_RAW_FILTER: {
+        before branch: case CAN_RAW_FILTER:
+        after  branch: int fsize = 0;
+        after  master: int fsize = ro->count * sizeof(struct can_filter);
+        after  branch: fsize = ro->count * sizeof(struct can_filter);
+        after  master: if (filter) {
+        after  master: if (copy_to_iter(filter, len, &opt->iter_out) != len)
+        after  branch: if (err == -ERANGE) {
+        before master: if (copy_to_iter(ro->filter, len, &opt->iter_out) != len)
+        before branch: if (copy_to_user(optval, ro->filter, len))
+        after  branch: } else if (filter) {
+        after  branch: if (copy_to_user(optval, filter, len))
+        before master: }
+    raw_setsockopt() (+ _locked): DIFF CHANGED (restructured upstream, compare the changes)
+        upstream change (235 lines, not shown)
+        backport change:
+          -rtnl_lock();
+          +/* The reg_state check is only a shortcut: On a concurrent
+          +* unregistration or namespace change raw_notify() waits for
+          +* lock_sock() and removes the filters set here.
+          +*/
+          -if (ro->bound && dev) {
+          -if (dev->reg_state != NETREG_REGISTERED) {
+          +if (ro->bound && dev && READ_ONCE(dev->reg_state) != NETREG_REGISTERED) {
+          -}
+          -rtnl_unlock();
+          -rtnl_lock();
+          +/* lockless shortcut, see CAN_RAW_FILTER */
+          -if (ro->bound && dev) {
+          -if (dev->reg_state != NETREG_REGISTERED) {
+          +if (ro->bound && dev && READ_ONCE(dev->reg_state) != NETREG_REGISTERED) {
+          -}
+          -rtnl_unlock();
+  can-ml.h: identical to upstream
+  netns-can.h: identical to upstream
+
+=== linux-6.12.y
+  af_can.c:
+    can_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_can_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !can_is_can_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_can_skb(skb))) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || !can_is_can_skb(skb))) {
+    canfd_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_canfd_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !can_is_canfd_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_canfd_skb(skb))) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || !can_is_canfd_skb(skb))) {
+    canxl_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_canxl_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !can_is_canxl_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_canxl_skb(skb))) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || !can_is_canxl_skb(skb))) {
+  bcm.c: identical to upstream
+  gw.c: identical to upstream
+  isotp.c: identical to upstream
+  raw.c:
+    raw_release(): DIFF CHANGED
+        after  master: raw_disable_allfilters(net, ro->dev, sk);
+        after  branch: raw_disable_allfilters(sock_net(sk), ro->dev, sk);
+    raw_getsockopt(): DIFF CHANGED
+        after  branch: int fsize = 0;
+        after  master: int fsize = ro->count * sizeof(struct can_filter);
+        after  branch: fsize = ro->count * sizeof(struct can_filter);
+        after  master: if (filter) {
+        after  master: if (copy_to_iter(filter, len, &opt->iter_out) != len)
+        after  branch: if (err == -ERANGE) {
+        before master: if (copy_to_iter(ro->filter, len, &opt->iter_out) != len)
+        before branch: if (copy_to_user(optval, ro->filter, len))
+        after  branch: } else if (filter) {
+        after  branch: if (copy_to_user(optval, filter, len))
+    raw_setsockopt() (+ _locked): DIFF CHANGED (restructured upstream, compare the changes)
+        upstream change (235 lines, not shown)
+        backport change:
+          -rtnl_lock();
+          +/* The reg_state check is only a shortcut: On a concurrent
+          +* unregistration or namespace change raw_notify() waits for
+          +* lock_sock() and removes the filters set here.
+          +*/
+          -if (ro->bound && dev) {
+          -if (dev->reg_state != NETREG_REGISTERED) {
+          +if (ro->bound && dev && READ_ONCE(dev->reg_state) != NETREG_REGISTERED) {
+          -}
+          -rtnl_unlock();
+          -rtnl_lock();
+          +/* lockless shortcut, see CAN_RAW_FILTER */
+          -if (ro->bound && dev) {
+          -if (dev->reg_state != NETREG_REGISTERED) {
+          +if (ro->bound && dev && READ_ONCE(dev->reg_state) != NETREG_REGISTERED) {
+          -}
+          -rtnl_unlock();
+  can-ml.h: identical to upstream
+  netns-can.h: identical to upstream
+
+=== linux-6.18.y
+  af_can.c:
+    can_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_can_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !can_is_can_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_can_skb(skb))) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || !can_is_can_skb(skb))) {
+    canfd_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_canfd_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !can_is_canfd_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_canfd_skb(skb))) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || !can_is_canfd_skb(skb))) {
+    canxl_rcv(): DIFF CHANGED
+        before master: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !csx || !can_is_canxl_skb(skb))) {
+        before branch: if (unlikely(dev->type != ARPHRD_CAN || !can_get_ml_priv(dev) || !can_is_canxl_skb(skb))) {
+        after  master: if (unlikely(!can_get_ml_priv(dev) || !csx || !can_is_canxl_skb(skb))) {
+        after  branch: if (unlikely(!can_get_ml_priv(dev) || !can_is_canxl_skb(skb))) {
+  bcm.c: identical to upstream
+  gw.c: identical to upstream
+  isotp.c: identical to upstream
+  raw.c:
+    raw_getsockopt(): DIFF CHANGED
+        after  branch: int fsize = 0;
+        after  master: int fsize = ro->count * sizeof(struct can_filter);
+        after  branch: fsize = ro->count * sizeof(struct can_filter);
+        after  master: if (filter) {
+        after  master: if (copy_to_iter(filter, len, &opt->iter_out) != len)
+        after  branch: if (err == -ERANGE) {
+        before master: if (copy_to_iter(ro->filter, len, &opt->iter_out) != len)
+        before branch: if (copy_to_user(optval, ro->filter, len))
+        after  branch: } else if (filter) {
+        after  branch: if (copy_to_user(optval, filter, len))
+  can-ml.h: identical to upstream
+  netns-can.h: identical to upstream
+
+36 block(s) to review
