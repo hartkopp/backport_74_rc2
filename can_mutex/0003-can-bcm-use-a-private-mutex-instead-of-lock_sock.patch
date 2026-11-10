@@ -1,0 +1,160 @@
+From 4590e7b879839164802398bddf21099caeb063e6 Mon Sep 17 00:00:00 2001
+From: Oliver Hartkopp <socketcan@hartkopp.net>
+Date: Tue, 10 Nov 2026 18:27:18 +0000
+Subject: [PATCH 3/3] can: bcm: use a private mutex instead of lock_sock()
+
+bcm_notify() takes lock_sock() of every CAN_BCM socket in the namespace
+of a vanishing CAN device while holding RTNL. Any path that holds the
+socket lock while accessing user space can therefore block RTNL. With
+"can: bcm: copy the CAN frames outside of lock_sock()" the CAN frames
+of bcm_sendmsg() are copied outside of the socket lock, but the generic
+SOL_SOCKET options in sk_setsockopt() and sk_getsockopt() still access
+user space under sockopt_lock_sock(), e.g. for SO_ATTACH_FILTER,
+SO_LINGER or SO_TXTIME.
+
+CAN_BCM only uses lock_sock() to serialize the binding and the bcm_op
+lists. It does not use the socket backlog, as the BCM messages are
+queued directly to the socket.
+
+Replace lock_sock() with the mutex conf_lock in struct bcm_sock. The
+generic socket options do not take this mutex, so they can not block
+bcm_notify() anymore. No user space access happens while the mutex is
+held. The memory allocations for the bcm_ops and the CAN receivers are
+still done under the mutex, as they have been under lock_sock() before.
+
+bcm_release() removes the procfs entry before taking the mutex, as
+remove_proc_entry() waits for readers that may stall in their copy to
+user space. The socket has already left the notifier list at this
+point.
+
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+---
+ net/can/bcm.c | 33 ++++++++++++++++++++-------------
+ 1 file changed, 20 insertions(+), 13 deletions(-)
+
+diff --git a/net/can/bcm.c b/net/can/bcm.c
+index d4ac2147b9..e8c03c582e 100644
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -145,6 +145,7 @@ struct bcm_sock {
+ 	unsigned long dropped_usr_msgs;
+ 	struct proc_dir_entry *bcm_proc_read;
+ 	char procname [32]; /* inode number in decimal with \0 */
++	struct mutex conf_lock; /* protects bind and the bcm_op lists */
+ };
+ 
+ static LIST_HEAD(bcm_notifier_list);
+@@ -1673,8 +1674,8 @@ static int bcm_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 	if ((size - MHSIZ) % cfsiz)
+ 		return -EINVAL;
+ 
+-	/* Copy the CAN frames from user space before lock_sock(), so a
+-	 * stalled copy can not block bcm_notify() waiting for lock_sock()
++	/* Copy the CAN frames from user space before taking bo->conf_lock, so a
++	 * stalled copy can not block bcm_notify() waiting for bo->conf_lock
+ 	 * under RTNL. Only the frames the opcode handler reads are copied.
+ 	 * The handlers keep their checks and read the frames from fmsg.
+ 	 */
+@@ -1714,12 +1715,12 @@ static int bcm_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 	kv.iov_len = flen;
+ 	iov_iter_kvec(&fmsg.msg_iter, ITER_SOURCE, &kv, 1, flen);
+ 
+-	lock_sock(sk);
++	mutex_lock(&bo->conf_lock);
+ 
+-	/* Re-validate under the socket lock: a concurrent bcm_notify()
++	/* Re-validate under bo->conf_lock: a concurrent bcm_notify()
+ 	 * may have unbound this socket (device removal) after the
+ 	 * lockless fast-path check above. bo->ifindex is only ever
+-	 * mutated under lock_sock(), so reading it here - instead of
++	 * mutated under bo->conf_lock, so reading it here - instead of
+ 	 * before taking the lock - guarantees it can't be observed
+ 	 * torn against bo->bound.
+ 	 */
+@@ -1819,7 +1820,7 @@ static int bcm_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 	}
+ 
+ out_release:
+-	release_sock(sk);
++	mutex_unlock(&bo->conf_lock);
+ out_free:
+ 	if (frames != &sframe)
+ 		kvfree(frames);
+@@ -1843,7 +1844,7 @@ static void bcm_notify(struct bcm_sock *bo, unsigned long msg,
+ 	switch (msg) {
+ 
+ 	case NETDEV_UNREGISTER:
+-		lock_sock(sk);
++		mutex_lock(&bo->conf_lock);
+ 
+ 		/* rx_ops: remove device specific receive entries */
+ 		list_for_each_entry(op, &bo->rx_ops, list) {
+@@ -1877,7 +1878,7 @@ static void bcm_notify(struct bcm_sock *bo, unsigned long msg,
+ 			notify_enodev = 1;
+ 		}
+ 
+-		release_sock(sk);
++		mutex_unlock(&bo->conf_lock);
+ 
+ 		if (notify_enodev) {
+ 			sk->sk_err = ENODEV;
+@@ -1930,6 +1931,7 @@ static int bcm_init(struct sock *sk)
+ 	bo->ifindex          = 0;
+ 	bo->dropped_usr_msgs = 0;
+ 	bo->bcm_proc_read    = NULL;
++	mutex_init(&bo->conf_lock);
+ 
+ 	INIT_LIST_HEAD(&bo->tx_ops);
+ 	INIT_LIST_HEAD(&bo->rx_ops);
+@@ -1970,14 +1972,18 @@ static int bcm_release(struct socket *sock)
+ 	spin_unlock(&bcm_notifier_lock);
+ 
+ 	/* bcm_notify() can not access this socket anymore */
+-	lock_sock(sk);
+ 
+ #if IS_ENABLED(CONFIG_PROC_FS)
+-	/* remove procfs entry */
++	/* Remove the procfs entry before taking bo->conf_lock, as
++	 * remove_proc_entry() waits for readers that may stall in their
++	 * copy to user space.
++	 */
+ 	if (net->can.bcmproc_dir && bo->bcm_proc_read)
+ 		remove_proc_entry(bo->procname, net->can.bcmproc_dir);
+ #endif /* CONFIG_PROC_FS */
+ 
++	mutex_lock(&bo->conf_lock);
++
+ 	list_for_each_entry_safe(op, next, &bo->tx_ops, list) {
+ 		list_del_rcu(&op->list);
+ 		bcm_remove_op(op);
+@@ -2012,10 +2018,11 @@ static int bcm_release(struct socket *sock)
+ 		WRITE_ONCE(bo->ifindex, 0);
+ 	}
+ 
++	mutex_unlock(&bo->conf_lock);
++
+ 	sock_orphan(sk);
+ 	sock->sk = NULL;
+ 
+-	release_sock(sk);
+ 	sock_prot_inuse_add(net, sk->sk_prot, -1);
+ 	sock_put(sk);
+ 
+@@ -2034,7 +2041,7 @@ static int bcm_connect(struct socket *sock, struct sockaddr_unsized *uaddr, int
+ 	if (len < BCM_MIN_NAMELEN)
+ 		return -EINVAL;
+ 
+-	lock_sock(sk);
++	mutex_lock(&bo->conf_lock);
+ 
+ 	if (bo->bound) {
+ 		ret = -EISCONN;
+@@ -2086,7 +2093,7 @@ static int bcm_connect(struct socket *sock, struct sockaddr_unsized *uaddr, int
+ 	WRITE_ONCE(bo->bound, 1);
+ 
+ fail:
+-	release_sock(sk);
++	mutex_unlock(&bo->conf_lock);
+ 
+ 	return ret;
+ }
