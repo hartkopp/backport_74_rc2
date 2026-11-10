@@ -28,6 +28,8 @@ versions=${*:-5.10 5.15 6.1 6.6 6.12 6.18}
 script=$(cd "$(dirname "$0")" && pwd)/build-branch.sh
 logdir=$(pwd)
 
+trap 'echo; echo "=== interrupted, restart with the same command"; exit 130' INT
+
 declare -A result
 for v in $versions; do
 	echo "=== linux-$v.y (log: $logdir/build-$v.log)"

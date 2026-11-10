@@ -64,3 +64,10 @@ scripts/build-all.sh [-e] <linux-stable-tree> [<X.Y> ...]
 
 Der linux-stable-Tree darf keine uncommitteten Änderungen haben. Vorher die
 stable-Branches fetchen (`git fetch origin`).
+
+Abbruch (Strg-C) und Neustart mit demselben Befehl sind unkritisch: Der
+Testbranch wird bei jedem Lauf neu auf die Basis gesetzt, ein durch den
+Abbruch liegengebliebenes `git am` auf einem `bp-test/*`-Branch wird
+automatisch mit `git am --abort` aufgeräumt (ein `git am` auf einem anderen
+Branch führt dagegen zum Abbruch des Scripts), und abgebrochene
+Objektdateien entfernt make selbst.

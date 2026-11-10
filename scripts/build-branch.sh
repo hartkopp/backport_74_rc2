@@ -63,6 +63,21 @@ build() {
 
 cd "$tree"
 
+# clean up a 'git am' left over from an interrupted run of this script,
+# but never touch an 'am' session outside of the bp-test/* branches
+if [ -d "$(git rev-parse --git-path rebase-apply)" ]; then
+	case $(git symbolic-ref -q --short HEAD) in
+	bp-test/*)
+		echo "### aborting leftover 'git am' on $(git symbolic-ref -q --short HEAD)"
+		git am --abort
+		;;
+	*)
+		echo "'git am' in progress outside of bp-test/*, aborting"
+		exit 1
+		;;
+	esac
+fi
+
 if ! git diff --quiet || ! git diff --cached --quiet; then
 	echo "$tree has uncommitted changes, aborting"
 	exit 1
