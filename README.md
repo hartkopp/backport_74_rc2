@@ -30,7 +30,8 @@ Erarbeitet wurden die Backports auf dem Mirror
 [gregkh/linux](https://github.com/gregkh/linux), Stand der Branch-Spitzen
 vom 06.11.2026 (5.10.274, 5.15.225, 6.1.192, 6.6.162, 6.12.116, 6.18.62).
 Jeder Patch wurde per `git am` auf die jeweilige Basis zurückgespielt und mit
-dem Arbeitsstand verglichen (identisch). Ein Build-Test steht noch aus.
+dem Arbeitsstand verglichen (identisch). Alle Branches bauen mit den
+Minimal-Configs nach jedem einzelnen Patch (`scripts/build-all.sh -e`).
 
 ## Build-Test
 

@@ -92,7 +92,9 @@ Konfliktbild ergibt sich erst, wenn #2 je Branch zurückportiert ist.
 
 ## Backport-Status
 
-Die Serie #2 → #4 → #5 ist für alle sechs Branches erstellt, siehe
+Die Serie #2 → #4 → #5 ist für alle sechs Branches erstellt und baut mit den
+Minimal-Configs aus `configs/` nach jedem einzelnen Patch fehler- und
+warnungsfrei (`scripts/build-all.sh -e`), siehe
 `linux-X.Y.y/`. Die Anpassungen stehen als `[ oliver: ... ]`-Notiz in den
 Commit-Messages und als Kurzfassung in `linux-X.Y.y/README.md`.
 
@@ -103,7 +105,7 @@ Commit-Messages und als Kurzfassung in `linux-X.Y.y/README.md`.
 | #4 `0f3ad9ab40e3` | angepasst | angepasst | angepasst | angepasst | angepasst | nur Kontext |
 | #5 `43c973a0887d` | angepasst | angepasst | angepasst | angepasst | angepasst | angepasst |
 | Patches im Set | 6 | 3 | 3 | 3 | 3 | 3 |
-| Build-Test | OK (`-e`) | OK (`-e`) | offen (1. Lauf: `net` in `raw_release()`, behoben) | offen (wie 6.1) | offen (wie 6.1) | offen |
+| Build-Test | OK (`-e`) | OK (`-e`) | OK (`-e`) | OK (`-e`) | OK (`-e`) | OK (`-e`) |
 
 Wichtigste strukturelle Unterschiede zu Mainline:
 
