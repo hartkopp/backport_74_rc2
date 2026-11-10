@@ -88,3 +88,35 @@ das stable-Tooling auch tut):
 Damit sind die Mails reproduziert. Die Konflikte bei #4 und #5 sind teilweise
 Folgekonflikte, weil im Probelauf #2 (bzw. #4) fehlt. Das tatsächliche
 Konfliktbild ergibt sich erst, wenn #2 je Branch zurückportiert ist.
+
+## Backport-Status
+
+Die Serie #2 → #4 → #5 ist für alle sechs Branches erstellt, siehe
+`linux-X.Y.y/`. Die Anpassungen stehen als `[ oliver: ... ]`-Notiz in den
+Commit-Messages und als Kurzfassung in `linux-X.Y.y/README.md`.
+
+| | 5.10 | 5.15 | 6.1 | 6.6 | 6.12 | 6.18 |
+|---|---|---|---|---|---|---|
+| Voraussetzungen | `ee8b94c8510c`, `11c9027c983e`, `c275a176e4b6` | – | – | – | – | – |
+| #2 `962947b69589` | angepasst | angepasst | angepasst | angepasst | angepasst | angepasst |
+| #4 `0f3ad9ab40e3` | angepasst | angepasst | angepasst | angepasst | angepasst | nur Kontext |
+| #5 `43c973a0887d` | angepasst | angepasst | angepasst | angepasst | angepasst | angepasst |
+| Patches im Set | 6 | 3 | 3 | 3 | 3 | 3 |
+| Build-Test | offen | offen | offen | offen | offen | offen |
+
+Wichtigste strukturelle Unterschiede zu Mainline:
+
+- **#2**: Die stable-Bäume haben kein `can_skb_ext`. `raw.c` braucht überall
+  zusätzlich `#include <linux/can/can-ml.h>` (upstream mit `faba5860fcf9`).
+- **#4**: `raw_setsockopt_locked()` (aus `1e5185c09058`) gibt es nur in 6.18.
+  Davor wird RTNL direkt in `raw_setsockopt()` entfernt. Bis 6.12 hält
+  `so->dev` und bis 5.15 auch `ro->dev` eine ungetrackte Referenz
+  (`dev_hold()`).
+- **#5**: Überall nutzt `raw_getsockopt()` noch `copy_to_user()`/`put_user()`
+  statt `getsockopt_iter`. Die Kopie und das `put_user()` bei `-ERANGE`
+  wandern hinter `release_sock()`. Bis 6.12 kopiert `raw_setsockopt()` schon
+  vor `lock_sock()`, dort entfällt der setsockopt-Teil. 5.10 kennt kein
+  `-ERANGE` beim Filter-Auslesen; dieses Verhalten bleibt erhalten.
+- **5.10**: `ro->dev` kam mit `ee8b94c8510c` ("can: raw: fix receiver memory
+  leak", 2023), der dort samt zwei Folgefixes nie gelandet ist. Die drei
+  Commits laufen als Voraussetzung vor der Serie mit.
