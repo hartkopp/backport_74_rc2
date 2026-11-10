@@ -55,8 +55,9 @@ Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
 Link: https://lore.kernel.org/all/20230711011737.1969582-1-william.xuanziyang@huawei.com
 Cc: stable@vger.kernel.org
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[ oliver: Adapt the raw_release() context as free_percpu(ro->uniq) has
-  already been moved out of raw_release() in this tree. ]
+[ backport to 5.10: Adapt the raw_release() context as
+  free_percpu(ro->uniq) has already been moved out of raw_release() in
+  this tree. ]
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 ---
  net/can/raw.c | 57 ++++++++++++++++++++++-----------------------------

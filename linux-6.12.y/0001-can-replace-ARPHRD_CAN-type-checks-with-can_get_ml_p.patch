@@ -41,12 +41,11 @@ Cc: Oleksij Rempel <o.rempel@pengutronix.de>
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 Link: https://patch.msgid.link/20261027-can-rx-lock-v12-1-eb5afc2d8b9b@hartkopp.net
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[ oliver: This tree has no can_skb_ext, so only the ARPHRD_CAN check
-  is removed from the conditions in can_rcv(), canfd_rcv() and
-  canxl_rcv().
-  Add the <linux/can/can-ml.h> include to raw.c, which upstream got
-  with commit faba5860fcf9 ("can: raw: instantly reject disabled CAN
-  frames"). ]
+[ backport to 6.12: This tree has no can_skb_ext, so only the ARPHRD_CAN
+  check is removed from the conditions in can_rcv(), canfd_rcv() and
+  canxl_rcv(). Add the <linux/can/can-ml.h> include to raw.c, which
+  upstream got with commit faba5860fcf9 ("can: raw: instantly reject
+  disabled CAN frames"). ]
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 ---
  net/can/af_can.c | 12 ++++++------

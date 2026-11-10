@@ -44,7 +44,7 @@ Cc: stable@vger.kernel.org # depends on "can: protect the receive lists with a p
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 Link: https://patch.msgid.link/20261027-can-rx-lock-v12-4-eb5afc2d8b9b@hartkopp.net
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[ oliver: This tree has no raw_setsockopt_locked() from commit
+[ backport to 5.10: This tree has no raw_setsockopt_locked() from commit
   1e5185c09058 ("can: raw: add locking for raw flags bitfield").
   raw_setsockopt() already copies all option values from user space
   before lock_sock() here, so only the raw_getsockopt() and isotp parts

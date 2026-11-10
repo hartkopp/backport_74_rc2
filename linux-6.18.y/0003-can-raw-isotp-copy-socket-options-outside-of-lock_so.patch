@@ -44,12 +44,12 @@ Cc: stable@vger.kernel.org # depends on "can: protect the receive lists with a p
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 Link: https://patch.msgid.link/20261027-can-rx-lock-v12-4-eb5afc2d8b9b@hartkopp.net
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[ oliver: raw_getsockopt() uses copy_to_user() and put_user() instead
-  of the getsockopt_iter interface in this tree. Duplicate the filters
-  under lock_sock() and copy them with copy_to_user() after
+[ backport to 6.18: raw_getsockopt() uses copy_to_user() and put_user()
+  instead of the getsockopt_iter interface in this tree. Duplicate the
+  filters under lock_sock() and copy them with copy_to_user() after
   release_sock(). Also move the put_user() of the needed filter space
-  for -ERANGE behind release_sock(), which upstream writes to the
-  kernel side opt->optlen. ]
+  for -ERANGE behind release_sock(), which upstream writes to the kernel
+  side opt->optlen. ]
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 ---
  net/can/isotp.c | 100 ++++++++++++++-----------

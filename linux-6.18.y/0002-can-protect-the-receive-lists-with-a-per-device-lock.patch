@@ -72,8 +72,8 @@ Cc: stable@vger.kernel.org
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 Link: https://patch.msgid.link/20261027-can-rx-lock-v12-3-eb5afc2d8b9b@hartkopp.net
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[ oliver: Adapt the can_pernet_init() context to kzalloc() as this tree
-  has no kzalloc_obj(). ]
+[ backport to 6.18: Adapt the can_pernet_init() context to kzalloc() as
+  this tree has no kzalloc_obj(). ]
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 ---
  include/linux/can/can-ml.h |  3 ++

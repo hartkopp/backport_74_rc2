@@ -18,8 +18,8 @@ Cc: Ziyang Xuan <william.xuanziyang@huawei.com>
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 Link: https://lore.kernel.org/r/20230821144547.6658-3-socketcan@hartkopp.net
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[ oliver: Use dev_hold()/dev_put() as in the 5.15-stable backport, as
-  this tree has no netdevice reference tracker. ]
+[ backport to 5.10: Use dev_hold()/dev_put() as in the 5.15-stable
+  backport, as this tree has no netdevice reference tracker. ]
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 ---
  net/can/raw.c | 34 +++++++++++++++++++++++++---------

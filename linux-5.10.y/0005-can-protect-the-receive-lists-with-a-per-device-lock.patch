@@ -72,9 +72,9 @@ Cc: stable@vger.kernel.org
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 Link: https://patch.msgid.link/20261027-can-rx-lock-v12-3-eb5afc2d8b9b@hartkopp.net
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[ oliver: Adapt the can_pernet_init() context to kzalloc() as this tree
-  has no kzalloc_obj(). so->dev and ro->dev hold untracked references
-  with dev_hold() in this tree. raw_setsockopt() has no
+[ backport to 5.10: Adapt the can_pernet_init() context to kzalloc() as
+  this tree has no kzalloc_obj(). so->dev and ro->dev hold untracked
+  references with dev_hold() in this tree. raw_setsockopt() has no
   raw_setsockopt_locked() split from commit 1e5185c09058 ("can: raw: add
   locking for raw flags bitfield") in this tree, so remove the RTNL
   locking from the CAN_RAW_FILTER and CAN_RAW_ERR_FILTER cases directly.

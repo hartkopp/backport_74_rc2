@@ -117,8 +117,9 @@ Cc: stable@vger.kernel.org
 Cc: Marc Kleine-Budde <mkl@pengutronix.de>
 Link: https://lore.kernel.org/all/20230720114438.172434-1-edumazet@google.com
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[ oliver: Adapt the raw_release() context as free_percpu(ro->uniq) has
-  already been moved out of raw_release() in this tree. ]
+[ backport to 5.10: Adapt the raw_release() context as
+  free_percpu(ro->uniq) has already been moved out of raw_release() in
+  this tree. ]
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 ---
  net/can/raw.c | 5 +++--

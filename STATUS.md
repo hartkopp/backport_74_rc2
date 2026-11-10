@@ -95,7 +95,7 @@ Konfliktbild ergibt sich erst, wenn #2 je Branch zurückportiert ist.
 Die Serie #2 → #4 → #5 ist für alle sechs Branches erstellt und baut mit den
 Minimal-Configs aus `configs/` nach jedem einzelnen Patch fehler- und
 warnungsfrei (`scripts/build-all.sh -e`), siehe
-`linux-X.Y.y/`. Die Anpassungen stehen als `[ oliver: ... ]`-Notiz in den
+`linux-X.Y.y/`. Die Anpassungen stehen als `[ backport to X.Y: ... ]`-Notiz in den
 Commit-Messages und als Kurzfassung in `linux-X.Y.y/README.md`.
 
 | | 5.10 | 5.15 | 6.1 | 6.6 | 6.12 | 6.18 |

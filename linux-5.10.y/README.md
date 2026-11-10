@@ -15,7 +15,7 @@ lock_sock()` ab, die darauf aufbauen.
 | `0005-can-protect-the-receive-lists-with-a-per-device-lock.patch` | `0f3ad9ab40e3` | can: protect the receive lists with a per-device lock |
 | `0006-can-raw-isotp-copy-socket-options-outside-of-lock_so.patch` | `43c973a0887d` | can: raw, isotp: copy socket options outside of lock_sock() |
 
-Die Anpassungen gegenüber Upstream stehen jeweils als `[ oliver: ... ]`-Notiz
+Die Anpassungen gegenüber Upstream stehen jeweils als `[ backport to 5.10: ... ]`-Notiz
 in der Commit-Message des Patches.
 
 ## Basis
@@ -71,4 +71,10 @@ git send-email --suppress-cc=all --confirm=always \
   linux-5.10.y/0*.patch
 ```
 
-`0001` antwortet damit auf die FAILED-Mail, die weiteren Patches auf `0001`.
+Der Cover-Letter `0000` antwortet auf die FAILED-Mail zu `962947b69589`,
+alle Patches hängen als Antwort am Cover-Letter. Die Reihenfolge beim
+Anwenden ergibt sich aus der Nummerierung `n/m` im Betreff; der
+Cover-Letter nennt zusätzlich die Reihenfolge und alle drei FAILED-Mails,
+die mit der Serie erledigt sind. Soll er nicht mitgeschickt werden,
+`0000-cover-letter.patch` vorher löschen (dann antwortet `0001` auf die
+FAILED-Mail).

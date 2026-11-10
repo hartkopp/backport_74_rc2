@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Oliver Hartkopp <socketcan@hartkopp.net>
+Date: Tue, 10 Nov 2026 15:56:09 +0000
+Subject: [PATCH 5.15.y 0/3] can: backport of the per-device receive list lock series
+
+This series backports the following upstream commits to 5.15.y, which
+failed to apply to the 5.15-stable tree:
+
+  962947b69589 ("can: replace ARPHRD_CAN type checks with can_get_ml_priv()")
+  0f3ad9ab40e3 ("can: protect the receive lists with a per-device lock")
+  43c973a0887d ("can: raw, isotp: copy socket options outside of lock_sock()")
+
+They build on each other and have to be applied in this order. This
+series answers all three FAILED mails:
+
+  <20261109202308-failed-5.15-962947b69589@kernel.org>
+  <20261109202312-failed-5.15-0f3ad9ab40e3@kernel.org>
+  <20261109202310-failed-5.15-43c973a0887d@kernel.org>
+
+The adaptations to this tree are described in each patch. The series
+applies on top of linux-5.15.y plus the already queued patches
+
+  874f5f14cf62 ("can: isotp: check the return values of can_rx_register() in isotp_bind()")
+  12297f855bbd ("can: proc: reset pkg_stats atomics individually")
+  01b19ed9fa03 ("can: proc: skip stats calculation after reset in can_stat_update()")
+
+and builds without errors or warnings after each patch.
+
+Oliver Hartkopp (3):
+  can: replace ARPHRD_CAN type checks with can_get_ml_priv()
+  can: protect the receive lists with a per-device lock
+  can: raw, isotp: copy socket options outside of lock_sock()
+
+ include/linux/can/can-ml.h |   3 +
+ include/net/netns/can.h    |   2 +-
+ net/can/af_can.c           |  49 ++++++----
+ net/can/bcm.c              |  50 ++++------
+ net/can/gw.c               |   7 +-
+ net/can/isotp.c            | 192 ++++++++++++++++++++++---------------
+ net/can/raw.c              | 136 +++++++++++++++++---------
+ 7 files changed, 260 insertions(+), 179 deletions(-)
+
