@@ -64,8 +64,8 @@ Commit-Message.
   Arbeitsbaum, aus dem sie exportiert wurden.
 - Compile-Test nur von `net/can/` nach jedem einzelnen Patch, mit
   `../configs/linux-X.Y.y.config` plus `CONFIG_PROC_FS=y`. Kein
-  vollständiger Kernel-Build, kein Laufzeittest. Stand: 6.18 und 6.12
-  fehler- und warnungsfrei, 6.6 bis 5.10 noch offen.
+  vollständiger Kernel-Build, kein Laufzeittest. Ergebnis: alle sechs
+  Branches nach jedem Patch fehler- und warnungsfrei (gcc 13.3).
 
 Hinweis: In `../configs/linux-5.10.y.config` ist `CONFIG_PROC_FS` nicht
 gesetzt (in den anderen Configs schon). Damit wird der procfs-Code in
