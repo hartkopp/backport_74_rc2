@@ -103,7 +103,7 @@ Commit-Messages und als Kurzfassung in `linux-X.Y.y/README.md`.
 | #4 `0f3ad9ab40e3` | angepasst | angepasst | angepasst | angepasst | angepasst | nur Kontext |
 | #5 `43c973a0887d` | angepasst | angepasst | angepasst | angepasst | angepasst | angepasst |
 | Patches im Set | 6 | 3 | 3 | 3 | 3 | 3 |
-| Build-Test | offen (1. Lauf: `READ_ONCE(dev->reg_state)` auf Bitfeld, behoben) | offen (wie 5.10) | offen | offen | offen | offen |
+| Build-Test | OK (`-e`) | OK (`-e`) | offen (1. Lauf: `net` in `raw_release()`, behoben) | offen (wie 6.1) | offen (wie 6.1) | offen |
 
 Wichtigste strukturelle Unterschiede zu Mainline:
 

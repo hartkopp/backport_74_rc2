@@ -75,10 +75,11 @@ Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 [ oliver: Adapt the can_pernet_init() context to kzalloc() as this tree
   has no kzalloc_obj(). so->dev holds an untracked reference with
   dev_hold() in this tree. raw_setsockopt() has no
-  raw_setsockopt_locked() split from commit 1e5185c09058 ("can: raw:
-  add locking for raw flags bitfield") in this tree, so remove the RTNL
-  locking from the CAN_RAW_FILTER and CAN_RAW_ERR_FILTER cases
-  directly. Keep the NULL check for dev_put() in raw_bind(). ]
+  raw_setsockopt_locked() split from commit 1e5185c09058 ("can: raw: add
+  locking for raw flags bitfield") in this tree, so remove the RTNL
+  locking from the CAN_RAW_FILTER and CAN_RAW_ERR_FILTER cases directly.
+  Keep the NULL check for dev_put() in raw_bind() and use sock_net(sk)
+  in raw_release(). ]
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 ---
  include/linux/can/can-ml.h |   3 ++
@@ -514,7 +515,7 @@ index fa9d3c362dda..b89469e69d6b 100644
  		if (!sock_flag(sk, SOCK_DEAD))
  			sk_error_report(sk);
 diff --git a/net/can/raw.c b/net/can/raw.c
-index cb2d19f9f7ef..deb134389544 100644
+index cb2d19f9f7ef..537e82717488 100644
 --- a/net/can/raw.c
 +++ b/net/can/raw.c
 @@ -87,6 +87,7 @@ struct raw_sock {
@@ -618,7 +619,7 @@ index cb2d19f9f7ef..deb134389544 100644
  	if (ro->bound) {
  		if (ro->dev) {
 -			raw_disable_allfilters(dev_net(ro->dev), ro->dev, sk);
-+			raw_disable_allfilters(net, ro->dev, sk);
++			raw_disable_allfilters(sock_net(sk), ro->dev, sk);
  			netdev_put(ro->dev, &ro->dev_tracker);
  		} else {
  			raw_disable_allfilters(sock_net(sk), NULL, sk);

@@ -29,7 +29,8 @@ Patches in [`queued/`](queued/). Das Set setzt voraus, dass diese vor ihm angewe
   hält eine ungetrackte Referenz per `dev_hold()`. Da `raw_setsockopt_locked()`
   (aus `1e5185c09058`, nur ab 6.18) fehlt, wird RTNL direkt in den Fällen
   `CAN_RAW_FILTER` und `CAN_RAW_ERR_FILTER` von `raw_setsockopt()` entfernt.
-  `raw_bind()` behält die NULL-Prüfung vor `dev_put()`.
+  `raw_bind()` behält die NULL-Prüfung vor `dev_put()`, `raw_release()` nutzt
+  `sock_net(sk)` (keine lokale Variable `net`).
 - **copy socket options**: `raw_setsockopt()` kopiert hier ohnehin schon vor
   `lock_sock()`, daher entfallen die Upstream-Änderungen dort. Es bleiben der
   isotp-Teil (unverändert) und `raw_getsockopt()` (wie bei 6.18: duplizieren
