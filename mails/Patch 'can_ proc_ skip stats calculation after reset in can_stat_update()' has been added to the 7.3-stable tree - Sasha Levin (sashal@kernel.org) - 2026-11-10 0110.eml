@@ -1,0 +1,177 @@
+X-Envelope-From: <sashal@kernel.org>
+X-Envelope-To: <socketcan@hartkopp.net>
+X-Delivery-Time: 1794269412
+X-UID: 1262318
+Return-Path: <sashal@kernel.org>
+ARC-Seal: i=1; a=rsa-sha256; t=1794269412; cv=none;
+    d=strato.com; s=strato-dkim-0002;
+    b=h7Nk7/127jH06iQ+0y7i8crq09sEf3Hqhhls3NdGzBMrN3C83+FsKZiDcwB/nKCcLH
+    5I7a/CdKyCFho/aLe+QgBpg2psQwxmER30mR4+/+QLVT5V22vhxGHyNtzYzEhP/rM+C+
+    1ZOmGwrSYK6fvv3POJ1MHHSbl2M/Db9+HvWpdhh1Ihlk78mZcP448U7pUQM+DSKO02Px
+    +zpm9ku42Cy8yijSMRPTxpSr02Nk1fBsFVuu39pHqc/eTZabz3X57nH82bycuy9xUvx3
+    CRmNduQjeCyXMaaAgDYnY0doFJ0CVYB6dFxLEsWDB/3y524yAQ5Bjz5y24Qcl6ZVILh0
+    XEag==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1794269412;
+    s=strato-dkim-0002; d=strato.com;
+    h=Reply-To:Message-ID:Date:Subject:Cc:To:From:Cc:Date:From:Subject:
+    Sender;
+    bh=0MOfwL2x0/FRn4X/3V79G/FXGShVy2cusTdIvNJU1Lc=;
+    b=LnDJE+VKXcELwzHLkVVSPw1qMRLPywFoewZBDDLiWZdD1Z2ZnEj9jAQXbDuPAEUL5r
+    4LoNhcboD2TRNS2qKoQGhMjL8WHpdSdd9IErQ0lifX/nYvfKHiplauA7tlgzpIkvIKI0
+    jRJqJ+CLdMIjHxeVu9R/SnyMoKvHvj1klgFb0fV7ACFqzmPx5fIy+qyT5PIR7QJ2M7U2
+    LKtA6HjFShBmmqfVq0+ARwxFeXMmejLQGfUizh8QpAyw1tag9kH/wA2GdTWVwYk3t5Yo
+    gFAz+KvEKJiEgnNXLpRpN+PZG8Zo8/Zg3tbtChbn1SlKQ7dZMbRr2J8bkIS5lGuoYCZs
+    jpAQ==
+ARC-Authentication-Results: i=1; strato.com;
+    dmarc=pass (p=QUARANTINE sp=NONE) header.from="kernel.org";
+    arc=none smtp.remote-ip=172.234.252.31;
+    dkim=pass header.d="kernel.org" header.s="k20260515" header.a="rsa-sha256";
+    dkim-adsp=pass;
+    spf=pass smtp.mailfrom="sashal@kernel.org"
+Authentication-Results: strato.com;
+    dmarc=pass (p=QUARANTINE sp=NONE) header.from="kernel.org";
+    arc=none smtp.remote-ip=172.234.252.31;
+    dkim=pass header.d="kernel.org" header.s="k20260515" header.a="rsa-sha256";
+    dkim-adsp=pass;
+    spf=pass smtp.mailfrom="sashal@kernel.org"
+X-RZG-Expurgate: clean/normal
+X-RZG-Expurgate-ID: 149500::1794269412-E5709CBD-6DB16AC1/0/0
+X-GEM-Spam-Flag: NO
+X-RZG-CLASS-ID: mi00
+Received-SPF: pass
+    (strato.com: domain kernel.org designates 172.234.252.31 as permitted sender)
+    mechanism=ip4;
+    client-ip=172.234.252.31;
+    helo="sea.source.kernel.org";
+    envelope-from="sashal@kernel.org";
+    receiver=smtpin.rzone.de;
+    identity=mailfrom;
+Received: from sea.source.kernel.org ([172.234.252.31])
+    by smtpin.rzone.de (RZmta 55.6.3 OK)
+    with ESMTPS id zb1f772AA0AB0LT
+    (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+    (Client did not present a certificate)
+    for <socketcan@hartkopp.net>;
+    Tue, 10 Nov 2026 01:10:11 +0100 (CET)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id 7628E432A5;
+	Tue, 10 Nov 2026 00:10:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4D5F1F0089F;
+	Tue, 10 Nov 2026 00:10:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794269410;
+	bh=0MOfwL2x0/FRn4X/3V79G/FXGShVy2cusTdIvNJU1Lc=;
+	h=From:To:Cc:Subject:Date:Reply-To;
+	b=ZRlSU0YEnTHthIsjmToSbhqXfEzZU6LNcDkVCM4jMchdV4YwHMy5kDsv3MG0lDsjj
+	 Db7Vz4LJX3juVfKxOToqYJjUptZf6Kfxgl6LbkIYRAsju6OGgY22FzcoWG5JFWbKLu
+	 79TlmPlitDVuwkJZmAY3aRVmmZpLZ64WhSrLB5Hq5SGNLkZ3L4FOKWHQbhD7tAY9XX
+	 ZtM6jovvHhewExc42Mtwu4gzeomhDS/ZVJtz+sAX3aurrZyd60eKCjEqqL0O/hQdP3
+	 +I9do8zpCYDajnUMZwH/inuapHWTrUuaxvzfJCx4txu9ksVQlqwTz+5zOnWGc72NmY
+	 dPsZVsOooI0VA==
+From: Sasha Levin <sashal@kernel.org>
+To: stable-commits@vger.kernel.org,
+	socketcan@hartkopp.net
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>
+Subject: Patch "can: proc: skip stats calculation after reset in can_stat_update()" has been added to the 7.3-stable tree
+Date: Mon,  9 Nov 2026 19:10:08 -0500
+Message-ID: <20261110001008.3489081-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.53.0
+Reply-To: stable@vger.kernel.org
+MIME-Version: 1.0
+X-Patchwork-Hint: ignore
+X-stable: review
+Content-Transfer-Encoding: 8bit
+
+This is a note to let you know that I've just added the patch titled
+
+    can: proc: skip stats calculation after reset in can_stat_update()
+
+to the 7.3-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+
+The filename of the patch is:
+     can-proc-skip-stats-calculation-after-reset-in-can_s.patch
+and it can be found in the queue-7.3 subdirectory.
+
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable@vger.kernel.org> know about it.
+
+
+
+commit 5633c23a8b6761ef73820c74198f7e8c5644239c
+Author: Oliver Hartkopp <socketcan@hartkopp.net>
+Date:   Tue Oct 27 15:31:10 2026 +0100
+
+    can: proc: skip stats calculation after reset in can_stat_update()
+    
+    [ Upstream commit 01b19ed9fa031a649f3dd103ebe6e0102602e542 ]
+    
+    Commit 80b5f90158d1 ("can: statistics: use atomic access in hot path")
+    introduced local snapshots of the statistics counters at the beginning
+    of can_stat_update(). When can_init_stats() resets the statistics, these
+    stale pre-reset snapshots are still used for the following total/current
+    /max calculations and overwrite the freshly reset values. Additionally a
+    jiffies tick between the snapshot and the reset could trigger a second
+    can_init_stats() call.
+    
+    Merge the reset conditions into a single check and skip the calculation
+    for the current interval when the statistics have been reset.
+    
+    Fixes: 80b5f90158d1 ("can: statistics: use atomic access in hot path")
+    Cc: stable@vger.kernel.org
+    Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+    Link: https://patch.msgid.link/20261027-can-rx-lock-v12-6-eb5afc2d8b9b@hartkopp.net
+    Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+    Signed-off-by: Sasha Levin <sashal@kernel.org>
+
+diff --git a/net/can/proc.c b/net/can/proc.c
+index 70104f13077e0..fb144d2adc35d 100644
+--- a/net/can/proc.c
++++ b/net/can/proc.c
+@@ -149,25 +149,18 @@ void can_stat_update(struct timer_list *t)
+ 	long tx_frames_delta = atomic_long_xchg(&pkg_stats->tx_frames_delta, 0);
+ 	long matches_delta = atomic_long_xchg(&pkg_stats->matches_delta, 0);
+ 
+-	/* restart counting in timer context on user request */
+-	if (user_reset)
+-		can_init_stats(net);
+-
+-	/* restart counting on jiffies overflow */
+-	if (j < pkg_stats->jiffies_init)
+-		can_init_stats(net);
+-
+-	/* prevent overflow in calc_rate() */
+-	if (rx_frames > (LONG_MAX / HZ))
+-		can_init_stats(net);
+-
+-	/* prevent overflow in calc_rate() */
+-	if (tx_frames > (LONG_MAX / HZ))
+-		can_init_stats(net);
+-
+-	/* matches overflow - very improbable */
+-	if (matches > (LONG_MAX / 100))
++	/*
++	 * Restart counting in timer context on user request, on jiffies
++	 * overflow or to prevent overflows in calc_rate() and in the
++	 * match ratio calculation. The local snapshots are stale after
++	 * the reset, so skip the calculation for this interval.
++	 */
++	if (user_reset || j < pkg_stats->jiffies_init ||
++	    rx_frames > (LONG_MAX / HZ) || tx_frames > (LONG_MAX / HZ) ||
++	    matches > (LONG_MAX / 100)) {
+ 		can_init_stats(net);
++		goto out;
++	}
+ 
+ 	/* calc total values */
+ 	if (rx_frames)
+@@ -196,6 +189,7 @@ void can_stat_update(struct timer_list *t)
+ 	if (pkg_stats->max_rx_match_ratio < pkg_stats->current_rx_match_ratio)
+ 		pkg_stats->max_rx_match_ratio = pkg_stats->current_rx_match_ratio;
+ 
++out:
+ 	/* restart timer (one second) */
+ 	mod_timer(&net->can.stattimer, round_jiffies(jiffies + HZ));
+ }

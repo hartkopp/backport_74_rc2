@@ -1,0 +1,159 @@
+X-Envelope-From: <sashal@kernel.org>
+X-Envelope-To: <socketcan@hartkopp.net>
+X-Delivery-Time: 1794270144
+X-UID: 1262324
+Return-Path: <sashal@kernel.org>
+ARC-Seal: i=1; a=rsa-sha256; t=1794270144; cv=none;
+    d=strato.com; s=strato-dkim-0002;
+    b=I1GUsCZRzhG5fZ/AcXtCPypQlEvsxkkYyRB3DffBsMKEJnCjG1mrtm+VxfbMMOr7bx
+    ADzlK+sw6C4nEr2b168olu7K12LIKpflwc1RqtaCHwb9pk9BTTob78SOKK6vi0WSvPzF
+    olZz4d8oxWD9xbsX89mYLdXGtjfLw7dJMc01Y7TPqPZuSHTwIYaNYnGWJCKtB/SmvqGv
+    Jx0rTvS82K6wsc7ZiqI8fGF0Vs0T4YiSH166NqB7o8N9Xfk3zbXvQc1mEE6+E9vlTgJJ
+    SavroqyiN4Qww/ULrE2FIVbTXOUhDo/i+xmvW2yM+QodcQabgFIdVygObQdX/hRoWu4c
+    PXyw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1794270144;
+    s=strato-dkim-0002; d=strato.com;
+    h=Reply-To:Message-ID:Date:Subject:Cc:To:From:Cc:Date:From:Subject:
+    Sender;
+    bh=pHhOdb+dtSojoKgvjUvarCsKJAkWt9ZrQCGOCAfYHbM=;
+    b=KFzjSYksAHnqCcPsYt9KFmH5fxusLRc5VkgG8XopfGXhZ7pXJCKyRRKwzo2FLqDL8I
+    2mtj9cnrXGqUCyEqSJEAFFfUJrfbb5ZRYd7tVlJLI1D5wUOXoYga5XNglQK7CC913vEI
+    yOowgsIq6YWo7ZWUrSQ0eJuQfQMQXfHww8CSv7oSY8XIywa5B7n7xYHlDOca0Y4v73r/
+    IBU5TTII0rwFmAQuVfKMVfT1Ao8ttOiQCRtLujYL72SpoIY2Xu+9k0Ey6sfVj/bpEww+
+    uUyFuZngL1yslQsbxGMHpO6bjpVcG/AY9K/oQlZXtumeFReobDfJpUTdygbC5ZMb5XB0
+    M/SQ==
+ARC-Authentication-Results: i=1; strato.com;
+    dmarc=pass (p=QUARANTINE sp=NONE) header.from="kernel.org";
+    arc=none smtp.remote-ip=2600:3c04:e001:324:0:1991:8:25;
+    dkim=pass header.d="kernel.org" header.s="k20260515" header.a="rsa-sha256";
+    dkim-adsp=pass;
+    spf=pass smtp.mailfrom="sashal@kernel.org"
+Authentication-Results: strato.com;
+    dmarc=pass (p=QUARANTINE sp=NONE) header.from="kernel.org";
+    arc=none smtp.remote-ip=2600:3c04:e001:324:0:1991:8:25;
+    dkim=pass header.d="kernel.org" header.s="k20260515" header.a="rsa-sha256";
+    dkim-adsp=pass;
+    spf=pass smtp.mailfrom="sashal@kernel.org"
+X-RZG-Expurgate: clean/normal
+X-RZG-Expurgate-ID: 149500::1794270144-BF8223DD-45650616/0/0
+X-GEM-Spam-Flag: NO
+X-RZG-CLASS-ID: mi00
+Received-SPF: pass
+    (strato.com: domain kernel.org designates 2600:3c04:e001:324:0:1991:8:25 as permitted sender)
+    mechanism=ip6;
+    client-ip=2600:3c04:e001:324:0:1991:8:25;
+    helo="tor.source.kernel.org";
+    envelope-from="sashal@kernel.org";
+    receiver=smtpin.rzone.de;
+    identity=mailfrom;
+Received: from tor.source.kernel.org ([IPv6:2600:3c04:e001:324:0:1991:8:25])
+    by smtpin.rzone.de (RZmta 55.6.3 OK)
+    with ESMTPS id Jfa8982AA0MOGH4
+    (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+    (Client did not present a certificate)
+    for <socketcan@hartkopp.net>;
+    Tue, 10 Nov 2026 01:22:24 +0100 (CET)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by tor.source.kernel.org (Postfix) with ESMTP id 6AC9361E41;
+	Tue, 10 Nov 2026 00:22:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62BCE1F008A1;
+	Tue, 10 Nov 2026 00:22:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794270143;
+	bh=pHhOdb+dtSojoKgvjUvarCsKJAkWt9ZrQCGOCAfYHbM=;
+	h=From:To:Cc:Subject:Date:Reply-To;
+	b=DJRg2kC9Uiq14NZjlEZjka2ZWqzeiemjFbmzvf5zfsXJgBaVz0mg0TzxzyneiIcP8
+	 XP10cF+TAEplkyL9I+APMmopI4PRrYIz+cT093RnodklQg+W0OeimhQpXp/HLSL5Xm
+	 P9OeF3uLN93G6eR49lLc/HzMxSRqgXa/UqgWoQyCkCrclebGdqx6sX57DyhCgK+Z51
+	 pEKuZXsXF3kfB1qy3fijsq6qij43I107/NRQeofex/c4H/KzK0l5JpEancZOMAKW+y
+	 fcOsJOMoVQMqqnpOOAGp+9cnWfsoIOPqNR2iSt/zcH+e97VjmQMQ1GecJ6J8e4IewT
+	 SYXjgpNFqOskg==
+From: Sasha Levin <sashal@kernel.org>
+To: stable-commits@vger.kernel.org,
+	kaixuanli0131@gmail.com
+Cc: Oliver Hartkopp <socketcan@hartkopp.net>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>
+Subject: Patch "can: isotp: check the frame type, not just the length" has been added to the 6.18-stable tree
+Date: Mon,  9 Nov 2026 19:22:21 -0500
+Message-ID: <20261110002221.3506138-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.53.0
+Reply-To: stable@vger.kernel.org
+MIME-Version: 1.0
+X-Patchwork-Hint: ignore
+X-stable: review
+Content-Transfer-Encoding: 8bit
+
+This is a note to let you know that I've just added the patch titled
+
+    can: isotp: check the frame type, not just the length
+
+to the 6.18-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+
+The filename of the patch is:
+     can-isotp-check-the-frame-type-not-just-the-length.patch
+and it can be found in the queue-6.18 subdirectory.
+
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable@vger.kernel.org> know about it.
+
+
+
+commit 45251fa1922b363ee9561a39db617b88f47cee3b
+Author: Kaixuan Li <kaixuanli0131@gmail.com>
+Date:   Sun Sep 20 11:56:26 2026 +0800
+
+    can: isotp: check the frame type, not just the length
+    
+    [ Upstream commit 933bf0fcb325e67b19c86c9c4da7f029878d5170 ]
+    
+    isotp_rcv() separates Classic CAN from CAN FD by skb->len alone:
+    
+            if (skb->len != so->ll.mtu)
+                    return;
+    
+            cf = (struct canfd_frame *)skb->data;
+    
+    A CAN XL frame with cxl->len 4 is CAN_MTU bytes, so it passes, and is then
+    read as a canfd_frame whose len comes out of canxl_frame.flags: at least
+    0x80.
+    
+    Of the paths that follow, only the flow control one uses that length
+    without bounding it first, so check_pad() walks to 255 over a 16-byte
+    frame and the caller reports EBADMSG on an unrelated socket.
+    
+    bcm_rx_handler(), j1939_can_recv(), can_can_gw_rcv() and raw_rcv() check
+    the frame type here, and can_dropped_invalid_skb() switches on
+    skb->protocol on the transmit side. isotp_rcv() is the gap.
+    
+    Fixes: fb08cba12b52 ("can: canxl: update CAN infrastructure for CAN XL frames")
+    Signed-off-by: Kaixuan Li <kaixuanli0131@gmail.com>
+    Reviewed-by: Oliver Hartkopp <socketcan@hartkopp.net>
+    Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+    Reviewed-by: Quchaosheng <quchaosheng000406@163.com>
+    Link: https://patch.msgid.link/20260920035626.2581040-1-kaixuanli0131@gmail.com
+    Cc: stable@vger.kernel.org
+    Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+    Signed-off-by: Sasha Levin <sashal@kernel.org>
+
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index 6c88f7777965a..39cd943df19ec 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -750,6 +750,14 @@ static void isotp_rcv(struct sk_buff *skb, void *data)
+ 	if (skb->len != so->ll.mtu)
+ 		return;
+ 
++	/* check for correct CAN CC/FD frame content */
++	if (so->ll.mtu == CAN_MTU) {
++		if (!can_is_can_skb(skb))
++			return;
++	} else if (!can_is_canfd_skb(skb)) {
++		return;
++	}
++
+ 	cf = (struct canfd_frame *)skb->data;
+ 
+ 	/* if enabled: check reception of my configured extended address */

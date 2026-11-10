@@ -1,0 +1,234 @@
+X-Envelope-From: <sashal@kernel.org>
+X-Envelope-To: <socketcan@hartkopp.net>
+X-Delivery-Time: 1794269409
+X-UID: 1262317
+Return-Path: <sashal@kernel.org>
+ARC-Seal: i=1; a=rsa-sha256; t=1794269409; cv=none;
+    d=strato.com; s=strato-dkim-0002;
+    b=enqdjAiNAqaHzZI1Z23sS+yvatNyq9HXdJPgrB2kTT35BW+OFpqrfzLID4ZqQwQZh+
+    lWPFabVVRQSm66YOxFfPqrEocjSOU7G3W+nweDY6GDa3i77AwNaZ/9W8LZnryHvDUXHO
+    /NzhVgBurKR1Uamf+1SnmR5Rw24WMv85dTwR/k7qeO6kBluH/Z566gpJdyR9yvSEYZ/V
+    tk6YJkCoiUySoD4JEMDIWi3mFp2sSUp/VYmattWYpkyubN/BSo/yCJVAZnhyaV03H4BB
+    1LdP33WRSgBYXrl5oVO2Foen8Dh9XT9hieAUN91NsSsRw0TfRrDt2sy2shIO1jK2QLe5
+    6Hlw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1794269409;
+    s=strato-dkim-0002; d=strato.com;
+    h=Reply-To:Message-ID:Date:Subject:Cc:To:From:Cc:Date:From:Subject:
+    Sender;
+    bh=Ep59G0pB6s0F/ss9XflLeQt/IsKNRzuYgzCMKi90MMM=;
+    b=FnU3JX65RpmeHOr4uLnLqz9qBT1HfxYF14z6OLkHEM3Blygsh8/N7qytDWUM4RyZ/Y
+    KDmEmkOXv6M2thijeGROco51aT1l2J/VG/fKwQkRVoJbsNbV85qYhNlH2rNNTiLeDjBk
+    HVgE2XuFliSz4bO/0Hi+pavNivT2cteLW+cb9E7lk8tMUr8BrCBvrYbYldlRWbdZP1PO
+    S49xYmSMJPwN6bJKkg4/GaSz0RBsuytJIo3JUF/t/u/t0rkwHvCAdBymiSZN79SKLAq8
+    QOPJdzND5z6CxNwu0MfAYUjqtPni8b5lygKvCfyGQMUeikBYWB6CCa8txZeDXYWv5Rf9
+    VE5g==
+ARC-Authentication-Results: i=1; strato.com;
+    dmarc=pass (p=QUARANTINE sp=NONE) header.from="kernel.org";
+    arc=none smtp.remote-ip=2600:3c0a:e001:78e:0:1991:8:25;
+    dkim=pass header.d="kernel.org" header.s="k20260515" header.a="rsa-sha256";
+    dkim-adsp=pass;
+    spf=pass smtp.mailfrom="sashal@kernel.org"
+Authentication-Results: strato.com;
+    dmarc=pass (p=QUARANTINE sp=NONE) header.from="kernel.org";
+    arc=none smtp.remote-ip=2600:3c0a:e001:78e:0:1991:8:25;
+    dkim=pass header.d="kernel.org" header.s="k20260515" header.a="rsa-sha256";
+    dkim-adsp=pass;
+    spf=pass smtp.mailfrom="sashal@kernel.org"
+X-RZG-Expurgate: clean/normal
+X-RZG-Expurgate-ID: 149500::1794269409-E6282C21-CBF21DC1/0/0
+X-GEM-Spam-Flag: NO
+X-RZG-CLASS-ID: mi00
+Received-SPF: pass
+    (strato.com: domain kernel.org designates 2600:3c0a:e001:78e:0:1991:8:25 as permitted sender)
+    mechanism=ip6;
+    client-ip=2600:3c0a:e001:78e:0:1991:8:25;
+    helo="sea.source.kernel.org";
+    envelope-from="sashal@kernel.org";
+    receiver=smtpin.rzone.de;
+    identity=mailfrom;
+Received: from sea.source.kernel.org ([IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+    by smtpin.rzone.de (RZmta 55.6.3 OK)
+    with ESMTPS id T9f8c52AA0A9y5K
+    (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+    (Client did not present a certificate)
+    for <socketcan@hartkopp.net>;
+    Tue, 10 Nov 2026 01:10:09 +0100 (CET)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id 3ABB241AFE;
+	Tue, 10 Nov 2026 00:10:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AA6A1F0089F;
+	Tue, 10 Nov 2026 00:10:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794269408;
+	bh=Ep59G0pB6s0F/ss9XflLeQt/IsKNRzuYgzCMKi90MMM=;
+	h=From:To:Cc:Subject:Date:Reply-To;
+	b=An3jHKVSHpYPGGRQFADS8WDhS4lRRw/wfYbP/S6Wc2HB9oUao9yRFddVvlGMokTqn
+	 tNU84z1aI9RjokBTaDH8/8yCbn6cvFsi4e3JV8CzQxArQQ6FP0bOYn+8/C0o2T2byg
+	 dtWCKpyPUnO4K0b7UZ2KQ4M2XzZZovqzJku0waKjMMktmV8Pd8A2TEM9jk8oEVyU8R
+	 ODJOsSBHNYEcGcwZnipEjHs+0/kEjOR2XM1FpkQu4+UuCtxmrxkfSwqxG1ORblHU0k
+	 yLZMniNd/rCDBgpp4wkUMDoP4w8cuYA+w+xzt0gp1RzPflsFtKWWDoEoCOlHDuLsxR
+	 nAFD7C7a8vTfg==
+From: Sasha Levin <sashal@kernel.org>
+To: stable-commits@vger.kernel.org,
+	runyu.xiao@seu.edu.cn
+Cc: Oliver Hartkopp <socketcan@hartkopp.net>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>
+Subject: Patch "can: proc: reset pkg_stats atomics individually" has been added to the 7.3-stable tree
+Date: Mon,  9 Nov 2026 19:10:06 -0500
+Message-ID: <20261110001006.3489040-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.53.0
+Reply-To: stable@vger.kernel.org
+MIME-Version: 1.0
+X-Patchwork-Hint: ignore
+X-stable: review
+Content-Transfer-Encoding: 8bit
+
+This is a note to let you know that I've just added the patch titled
+
+    can: proc: reset pkg_stats atomics individually
+
+to the 7.3-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+
+The filename of the patch is:
+     can-proc-reset-pkg_stats-atomics-individually.patch
+and it can be found in the queue-7.3 subdirectory.
+
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable@vger.kernel.org> know about it.
+
+
+
+commit 7cc20fee08ddbc0c3b8323891bc313346336f2b5
+Author: Runyu Xiao <runyu.xiao@seu.edu.cn>
+Date:   Tue Oct 27 15:31:09 2026 +0100
+
+    can: proc: reset pkg_stats atomics individually
+    
+    [ Upstream commit 12297f855bbd943847cb8893a3614caef5a9c2a8 ]
+    
+    Commit 80b5f90158d1 ("can: statistics: use atomic access in hot path")
+    converted several members of struct can_pkg_stats to atomic_long_t and
+    updated the hot TX/RX and procfs read paths to use atomic_long_*()
+    helpers. However, can_init_stats() still clears the whole struct with
+    memset().
+    
+    can_init_stats() is reached from can_stat_update() in timer context and
+    also from the procfs reset path. Those paths can run while the TX/RX hot
+    paths are concurrently updating rx_frames, tx_frames, matches and their
+    *_delta counters. Hitting the whole-struct memset() in that window
+    performs plain writes to fields that otherwise follow an atomic_long_t
+    access contract, which can lose or mix live statistics updates.
+    
+    This issue was found by source-level API-misuse analysis looking for
+    whole-object resets left behind after atomic_long_t conversions, then
+    manually audited on Linux v6.18.21.
+    
+    Replace the whole-struct memset() with a helper that resets the
+    atomic_long_t counters via atomic_long_set() and clears the derived
+    scalar statistics explicitly. This preserves the existing reset
+    semantics for scalar fields while restoring atomic access discipline for
+    the live counters.
+    
+    Build-tested by compiling net/can/proc.o on x86_64 netdev/main.
+    Runtime-tested with a QEMU + vcan setup on Linux v6.18.21 by driving
+    concurrent traffic and reset_stats reads, which reproduced inconsistent
+    exported statistics before the fix.
+    
+    [Hartkopp] can_stat_update() also read the *_delta counters at the
+    beginning and cleared them with atomic_long_set() at the end. Increments
+    from the hot path in between were lost for both the current and the next
+    interval. Use atomic_long_xchg() to fetch and clear the *_delta counters
+    in one atomic step instead.
+    
+    On x86_64 atomic_long_set() is a plain store like memset(), so the
+    memset() is an actual problem only on architectures with lock-based
+    atomics (e.g. parisc). The inconsistencies seen on x86_64 come from the
+    *_delta handling and from the stale snapshots, which are fixed in "can:
+    proc: skip stats calculation after reset in can_stat_update()". As
+    before, the counters are reset one at a time and the derived scalar
+    statistics use plain stores.
+    
+    Fixes: 80b5f90158d1 ("can: statistics: use atomic access in hot path")
+    Cc: stable@vger.kernel.org
+    Signed-off-by: Runyu Xiao <runyu.xiao@seu.edu.cn>
+    Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+    Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+    Link: https://patch.msgid.link/20261027-can-rx-lock-v12-5-eb5afc2d8b9b@hartkopp.net
+    Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+    Signed-off-by: Sasha Levin <sashal@kernel.org>
+
+diff --git a/net/can/proc.c b/net/can/proc.c
+index de4d05ae34597..70104f13077e0 100644
+--- a/net/can/proc.c
++++ b/net/can/proc.c
+@@ -76,16 +76,39 @@ static const char rx_list_name[][8] = {
+  * af_can statistics stuff
+  */
+ 
++static void can_reset_pkg_stats(struct can_pkg_stats *pkg_stats)
++{
++	atomic_long_set(&pkg_stats->rx_frames, 0);
++	atomic_long_set(&pkg_stats->tx_frames, 0);
++	atomic_long_set(&pkg_stats->matches, 0);
++
++	pkg_stats->total_rx_rate = 0;
++	pkg_stats->total_tx_rate = 0;
++	pkg_stats->total_rx_match_ratio = 0;
++
++	pkg_stats->current_rx_rate = 0;
++	pkg_stats->current_tx_rate = 0;
++	pkg_stats->current_rx_match_ratio = 0;
++
++	pkg_stats->max_rx_rate = 0;
++	pkg_stats->max_tx_rate = 0;
++	pkg_stats->max_rx_match_ratio = 0;
++
++	atomic_long_set(&pkg_stats->rx_frames_delta, 0);
++	atomic_long_set(&pkg_stats->tx_frames_delta, 0);
++	atomic_long_set(&pkg_stats->matches_delta, 0);
++}
++
+ static void can_init_stats(struct net *net)
+ {
+ 	struct can_pkg_stats *pkg_stats = net->can.pkg_stats;
+ 	struct can_rcv_lists_stats *rcv_lists_stats = net->can.rcv_lists_stats;
+ 	/*
+-	 * This memset function is called from a timer context (when
++	 * This stats reset is called from a timer context (when
+ 	 * can_stattimer is active which is the default) OR in a process
+ 	 * context (reading the proc_fs when can_stattimer is disabled).
+ 	 */
+-	memset(pkg_stats, 0, sizeof(struct can_pkg_stats));
++	can_reset_pkg_stats(pkg_stats);
+ 	pkg_stats->jiffies_init = jiffies;
+ 
+ 	rcv_lists_stats->stats_reset++;
+@@ -121,9 +144,10 @@ void can_stat_update(struct timer_list *t)
+ 	long rx_frames = atomic_long_read(&pkg_stats->rx_frames);
+ 	long tx_frames = atomic_long_read(&pkg_stats->tx_frames);
+ 	long matches = atomic_long_read(&pkg_stats->matches);
+-	long rx_frames_delta = atomic_long_read(&pkg_stats->rx_frames_delta);
+-	long tx_frames_delta = atomic_long_read(&pkg_stats->tx_frames_delta);
+-	long matches_delta = atomic_long_read(&pkg_stats->matches_delta);
++	/* fetch and clear values for 'current rate' calculation */
++	long rx_frames_delta = atomic_long_xchg(&pkg_stats->rx_frames_delta, 0);
++	long tx_frames_delta = atomic_long_xchg(&pkg_stats->tx_frames_delta, 0);
++	long matches_delta = atomic_long_xchg(&pkg_stats->matches_delta, 0);
+ 
+ 	/* restart counting in timer context on user request */
+ 	if (user_reset)
+@@ -172,11 +196,6 @@ void can_stat_update(struct timer_list *t)
+ 	if (pkg_stats->max_rx_match_ratio < pkg_stats->current_rx_match_ratio)
+ 		pkg_stats->max_rx_match_ratio = pkg_stats->current_rx_match_ratio;
+ 
+-	/* clear values for 'current rate' calculation */
+-	atomic_long_set(&pkg_stats->tx_frames_delta, 0);
+-	atomic_long_set(&pkg_stats->rx_frames_delta, 0);
+-	atomic_long_set(&pkg_stats->matches_delta, 0);
+-
+ 	/* restart timer (one second) */
+ 	mod_timer(&net->can.stattimer, round_jiffies(jiffies + HZ));
+ }

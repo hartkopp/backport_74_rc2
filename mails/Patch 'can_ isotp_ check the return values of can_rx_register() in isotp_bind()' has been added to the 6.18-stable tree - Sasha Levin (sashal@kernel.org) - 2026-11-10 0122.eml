@@ -1,0 +1,217 @@
+X-Envelope-From: <sashal@kernel.org>
+X-Envelope-To: <socketcan@hartkopp.net>
+X-Delivery-Time: 1794270149
+X-UID: 1262325
+Return-Path: <sashal@kernel.org>
+ARC-Seal: i=1; a=rsa-sha256; t=1794270149; cv=none;
+    d=strato.com; s=strato-dkim-0002;
+    b=Xx2mAAdWFrYgbWPsnvnfeXHS9yUVQmDLqVGGTbTGQO933S8kgRMwZVWC2T6d9xZxKR
+    24x0fj1qFhEsjRPbQVcvQwbeTLuQbv0cpyGgAVtZrd7YbL8cj3/RWHgRMJUYIhJTg4pL
+    fGxMro7OHa/CG9IH372BOoi6HoAIl3/WQOP7wFktt7scAd1hl/hpn6tBXX9NiisQkP32
+    jECNvwfpBlRdNza4ki18NV+kyPk+kX33o2Kzh06lu6iPWpe0AVpIm0Nk3/N78ibJa4qk
+    vvabIYBnXsW0ZO+dLbEvXPTh5kNoTb+MRyawLZtAoM35MIJHoLo8Ve/MXJnQXO6UB7aS
+    03Xw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1794270149;
+    s=strato-dkim-0002; d=strato.com;
+    h=Reply-To:Message-ID:Date:Subject:Cc:To:From:Cc:Date:From:Subject:
+    Sender;
+    bh=BZ7puMEfmFK1cY5mSEqlX5CDvxe4SjyXChr0BZK8GDg=;
+    b=MFISrvHI+Zt61k/nSYZbOoaef7tLiBe6GGSfrKgHM9ixS/3KP6C3MJkIxfSA+DGMlj
+    vqDJ+CgQmU2+OkAY/x+Ntdlci2p1oiR+1kA56JhUyAvnjh3EqkClznpvmA0B6+BbFu81
+    gSm9KaI7vjsbJ7DKTSOR7sg+uuIepshagGY85u5gnEot2spQbSrLgE2p7yfw6EwHIxF/
+    bOHtTnfFE82fB/LTXBOwoxabn5/tp/cHb1PiDsskbjRq6JISCZ8+Q85kVPD+rnrG8nAC
+    qzaFCnTbUpBWwJkeJkssN7rmKx1lzCcdaYoSkF1pOo2R5WUsKVemaNBf9beE0Pt+Th7g
+    HIDQ==
+ARC-Authentication-Results: i=1; strato.com;
+    dmarc=pass (p=QUARANTINE sp=NONE) header.from="kernel.org";
+    arc=none smtp.remote-ip=172.234.252.31;
+    dkim=pass header.d="kernel.org" header.s="k20260515" header.a="rsa-sha256";
+    dkim-adsp=pass;
+    spf=pass smtp.mailfrom="sashal@kernel.org"
+Authentication-Results: strato.com;
+    dmarc=pass (p=QUARANTINE sp=NONE) header.from="kernel.org";
+    arc=none smtp.remote-ip=172.234.252.31;
+    dkim=pass header.d="kernel.org" header.s="k20260515" header.a="rsa-sha256";
+    dkim-adsp=pass;
+    spf=pass smtp.mailfrom="sashal@kernel.org"
+X-RZG-Expurgate: clean/normal
+X-RZG-Expurgate-ID: 149500::1794270149-6EFF5CEF-4D8B57EE/0/0
+X-GEM-Spam-Flag: NO
+X-RZG-CLASS-ID: mi00
+Received-SPF: pass
+    (strato.com: domain kernel.org designates 172.234.252.31 as permitted sender)
+    mechanism=ip4;
+    client-ip=172.234.252.31;
+    helo="sea.source.kernel.org";
+    envelope-from="sashal@kernel.org";
+    receiver=smtpin.rzone.de;
+    identity=mailfrom;
+Received: from sea.source.kernel.org ([172.234.252.31])
+    by smtpin.rzone.de (RZmta 55.6.3 OK)
+    with ESMTPS id Tb39f02AA0MTEG9
+    (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+    (Client did not present a certificate)
+    for <socketcan@hartkopp.net>;
+    Tue, 10 Nov 2026 01:22:29 +0100 (CET)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id BA4AD414B7;
+	Tue, 10 Nov 2026 00:22:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F13EC1F0089F;
+	Tue, 10 Nov 2026 00:22:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794270147;
+	bh=BZ7puMEfmFK1cY5mSEqlX5CDvxe4SjyXChr0BZK8GDg=;
+	h=From:To:Cc:Subject:Date:Reply-To;
+	b=IwrBU9XF7ZM1XeY4qDkzKVMqcN+k8m8zAnH3D0IgWl4iymhoX2XM0cFQLZfNyYx5n
+	 G4mqaahX3HdERcCR3pMqSph+LW8KaLNkWYiWM9xyO8kCCHP/T3hUeArt6x9Ac2xYZd
+	 KR4XRBziQhwHGyTeK1qjgr6aL2ZaTI89M5BV/jbTOMnOiaR0gKGhm44plM2cnTzDgC
+	 DbZzQt1QB+DaX6zPsMa3yIgymoJbNnMH18Ee28HiUppkp0wDwbQvQ6h88aHbAd5iPT
+	 gXgV9lb3FBrMcPh1StxsG/iYsy+lK9Zf1R53NX7D+1K7niqPZ3AKZg6WIkWsJeigkJ
+	 vu8BnltJvE3dA==
+From: Sasha Levin <sashal@kernel.org>
+To: stable-commits@vger.kernel.org,
+	socketcan@hartkopp.net
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>
+Subject: Patch "can: isotp: check the return values of can_rx_register() in isotp_bind()" has been added to the 6.18-stable tree
+Date: Mon,  9 Nov 2026 19:22:25 -0500
+Message-ID: <20261110002225.3506265-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.53.0
+Reply-To: stable@vger.kernel.org
+MIME-Version: 1.0
+X-Patchwork-Hint: ignore
+X-stable: review
+Content-Transfer-Encoding: 8bit
+
+This is a note to let you know that I've just added the patch titled
+
+    can: isotp: check the return values of can_rx_register() in isotp_bind()
+
+to the 6.18-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+
+The filename of the patch is:
+     can-isotp-check-the-return-values-of-can_rx_register.patch
+and it can be found in the queue-6.18 subdirectory.
+
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable@vger.kernel.org> know about it.
+
+
+
+commit cb8ef7192a140d3cd2de1f1dd18b1770a6d295f0
+Author: Oliver Hartkopp <socketcan@hartkopp.net>
+Date:   Tue Oct 27 15:31:06 2026 +0100
+
+    can: isotp: check the return values of can_rx_register() in isotp_bind()
+    
+    [ Upstream commit 874f5f14cf626f72477071eff381c8485554250d ]
+    
+    isotp_bind() ignores the return values of can_rx_register() for the RX
+    and the echo receiver and binds the socket anyway. When a receiver can
+    not be allocated, bind() succeeds without this receiver, so the socket
+    does not receive frames or its transmissions time out. isotp_release()
+    and isotp_notify() later try to remove the missing receiver, which
+    triggers the "receive list entry not found" warning in
+    can_rx_unregister().
+    
+    As the device has been checked before and RTNL prevents a namespace
+    change during bind(), only -ENOMEM can be returned here.
+    
+    Check the return values and register the RX receiver as the last step.
+    The echo receiver is registered first, as it only handles the socket's
+    own echo frames and does nothing while no transmission is in progress.
+    So a failed RX registration only needs to remove the echo receiver, and
+    isotp_rcv() has never processed a frame for this socket.
+    
+    Set so->ifindex before the registrations, so that a First Frame received
+    before so->bound is set can be answered with a Flow Control frame and
+    the RX timeout is started as usual. As the RX receiver is registered
+    last, this can only happen for a bind() that succeeds. Reset so->ifindex
+    when bind() fails.
+    
+    Check IFF_UP only after the receivers have been registered, so that a
+    bind() that fails on a down device does not report ENETDOWN. As bind()
+    holds RTNL, the device state can not change in between.
+    
+    Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+    Cc: stable@vger.kernel.org
+    Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+    Link: https://patch.msgid.link/20261027-can-rx-lock-v12-2-eb5afc2d8b9b@hartkopp.net
+    Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+    Signed-off-by: Sasha Levin <sashal@kernel.org>
+
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index 39cd943df19ec..e3261fb4663af 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -1527,7 +1527,6 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ 	struct sock *sk = sock->sk;
+ 	struct isotp_sock *so = isotp_sk(sk);
+ 	struct net *net = sock_net(sk);
+-	int ifindex;
+ 	struct net_device *dev;
+ 	canid_t tx_id = addr->can_addr.tp.tx_id;
+ 	canid_t rx_id = addr->can_addr.tp.rx_id;
+@@ -1604,26 +1603,36 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ 		err = -EINVAL;
+ 		goto out_put_dev;
+ 	}
+-	if (!(dev->flags & IFF_UP))
+-		notify_enetdown = 1;
+ 
+-	ifindex = dev->ifindex;
+-
+-	if (isotp_register_rxid(so))
+-		can_rx_register(net, dev, rx_id, SINGLE_MASK(rx_id),
+-				isotp_rcv, sk, "isotp", sk);
++	/* switch to new settings */
++	so->ifindex = dev->ifindex;
++	so->rxid = rx_id;
++	so->txid = tx_id;
+ 
+ 	/* no consecutive frame echo skb in flight */
+ 	WRITE_ONCE(so->cfecho, 0);
+ 
+-	/* register for echo skb's */
+-	can_rx_register(net, dev, tx_id, SINGLE_MASK(tx_id),
+-			isotp_rcv_echo, sk, "isotpe", sk);
++	/* register for echo skb's first (no echo traffic at this point) */
++	err = can_rx_register(net, dev, tx_id, SINGLE_MASK(tx_id),
++			      isotp_rcv_echo, sk, "isotpe", sk);
++	if (err)
++		goto out_put_dev;
++
++	if (isotp_register_rxid(so)) {
++		err = can_rx_register(net, dev, rx_id, SINGLE_MASK(rx_id),
++				      isotp_rcv, sk, "isotp", sk);
++		if (err) {
++			/* unregister echo skb subscription */
++			can_rx_unregister(net, dev, tx_id, SINGLE_MASK(tx_id),
++					  isotp_rcv_echo, sk);
++			goto out_put_dev;
++		}
++	}
++
++	/* report a down device only for a successful bind() */
++	if (!(dev->flags & IFF_UP))
++		notify_enetdown = 1;
+ 
+-	/* switch to new settings */
+-	so->ifindex = ifindex;
+-	so->rxid = rx_id;
+-	so->txid = tx_id;
+ 	so->bound = 1;
+ 
+ 	/* bind() ok -> hold a reference for so->dev so that isotp_release()
+@@ -1634,6 +1643,9 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ 	netdev_hold(so->dev, &so->dev_tracker, GFP_KERNEL);
+ 
+ out_put_dev:
++	if (err)
++		so->ifindex = 0; /* reset on failed bind() */
++
+ 	/* remove potential reference from dev_get_by_index() */
+ 	dev_put(dev);
+ out:
