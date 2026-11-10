@@ -105,16 +105,16 @@ for p in "$dir"/queued/*.patch; do
 done
 
 if [ $each -eq 1 ]; then
-	for p in "$dir"/0*.patch; do
+	for p in "$dir"/[123]-*/*.patch; do
 		echo "### apply: $(basename "$p")"
 		git am -q --3way "$p"
 		build
 	done
 else
-	for p in "$dir"/0*.patch; do
+	for p in "$dir"/[123]-*/*.patch; do
 		echo "### apply: $(basename "$p")"
 	done
-	git am -q --3way "$dir"/0*.patch
+	git am -q --3way "$dir"/[123]-*/*.patch
 	build
 fi
 

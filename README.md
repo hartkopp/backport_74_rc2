@@ -20,7 +20,7 @@ nie gelandet sind (siehe [linux-5.10.y/README.md](linux-5.10.y/README.md)).
 |---|---|
 | [`STATUS.md`](STATUS.md) | Auswertung der Statusmails: welcher Patch auf welchem Branch OK/FAILED, Prüfung gegen gregkh/linux, Backport-Status |
 | [`mails/`](mails/) | Statusmails von Sasha Levin (`.eml`) |
-| `linux-X.Y.y/0*.patch` | Versandfertige Backport-Serie pro Branch (`git format-patch`) |
+| `linux-X.Y.y/[123]-<sha>/*.patch` | Versandfertige Backports pro Branch, ein Verzeichnis pro FAILED-Mail (`git format-patch`) |
 | `linux-X.Y.y/queued/` | Bereits gequeuete Patches, auf denen die Serie aufsetzt (nur für den Build-Test) |
 | `linux-X.Y.y/README.md` | Anpassungen, Prüfliste und `git send-email`-Befehl pro Branch |
 | [`configs/`](configs/) | Minimale Kernel-Configs (allnoconfig + CAN) pro Branch |
