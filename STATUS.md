@@ -62,8 +62,8 @@ Die am 10.11. gequeueten Patches sind dort also noch nicht enthalten.
 
 **#1 auf 5.10 und 5.15:** `fb08cba12b52` (CAN XL) ist dort nicht enthalten,
 ab 6.1 schon (Teil der Basis). #1 ist für 5.10 und 5.15 also nicht
-relevant. Er würde zwar textuell anwenden, setzt aber die mit CAN XL
-eingeführten Helfer `can_is_can_skb()`/`can_is_canfd_skb()` voraus.
+relevant. Er würde zwar textuell anwenden, braucht aber `can_is_can_skb()`.
+Das fehlt in 5.10 und 5.15; in 5.15 gibt es nur `can_is_canfd_skb()`.
 
 **`20bab8b88baa` (Fixes-Ziel von #4)** ist in allen sechs Branches gelandet:
 
