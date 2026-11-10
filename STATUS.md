@@ -54,3 +54,37 @@ Zusätzlich (nicht in der ursprünglichen Liste, aber im Mail-Satz enthalten):
 - Keine der 18 FAILED-Mails nennt "Possible dependencies".
 - **`d74307196492`** (drivers/net/can/dev/skb.c) ist bisher nur für 7.3
   gemeldet. Für die älteren Branches gibt es weder OK noch FAIL.
+
+## Verifikation gegen gregkh/linux (Stand der Branches: 06.11.2026)
+
+Branch-Spitzen: 5.10.274, 5.15.225, 6.1.192, 6.6.162, 6.12.116, 6.18.62.
+Die am 10.11. gequeueten Patches sind dort also noch nicht enthalten.
+
+**#1 auf 5.10 und 5.15:** `fb08cba12b52` (CAN XL) ist dort nicht enthalten,
+ab 6.1 schon (Teil der Basis). #1 ist für 5.10 und 5.15 also nicht
+relevant. Er würde zwar textuell anwenden, setzt aber die mit CAN XL
+eingeführten Helfer `can_is_can_skb()`/`can_is_canfd_skb()` voraus.
+
+**`20bab8b88baa` (Fixes-Ziel von #4)** ist in allen sechs Branches gelandet:
+
+| 5.10 | 5.15 | 6.1 | 6.6 | 6.12 | 6.18 |
+|---|---|---|---|---|---|
+| `f311bbb29bb0` | `8e018f433559` | `33b9cd9245e2` | `0b811c4bbe3e` | `43884dc7963b` | `7bef39ba76eb` |
+
+**Probelauf der Serie** (`git merge-tree`, Cherry-pick in Mainline-Reihenfolge
+auf die Branch-Spitze; bei einem Konflikt wird der Patch übersprungen, wie es
+das stable-Tooling auch tut):
+
+| # | Commit | 5.10 | 5.15 | 6.1 | 6.6 | 6.12 | 6.18 |
+|---|---|---|---|---|---|---|---|
+| 1 | `933bf0fcb325` | (n/a) | (n/a) | OK | OK | OK | OK |
+| 2 | `962947b69589` | af_can.c, raw.c | af_can.c | af_can.c | af_can.c | af_can.c | af_can.c |
+| 3 | `874f5f14cf62` | OK | OK | OK | OK | OK | OK |
+| 4 | `0f3ad9ab40e3` | af_can.c, isotp.c, raw.c | af_can.c, isotp.c, raw.c | af_can.c, isotp.c, raw.c | af_can.c, isotp.c, raw.c | af_can.c, isotp.c, raw.c | af_can.c, isotp.c |
+| 5 | `43c973a0887d` | raw.c | raw.c | raw.c | raw.c | raw.c | raw.c |
+| 6 | `12297f855bbd` | OK | OK | OK | OK | OK | OK |
+| 7 | `01b19ed9fa03` | OK | OK | OK | OK | OK | OK |
+
+Damit sind die Mails reproduziert. Die Konflikte bei #4 und #5 sind teilweise
+Folgekonflikte, weil im Probelauf #2 (bzw. #4) fehlt. Das tatsächliche
+Konfliktbild ergibt sich erst, wenn #2 je Branch zurückportiert ist.
