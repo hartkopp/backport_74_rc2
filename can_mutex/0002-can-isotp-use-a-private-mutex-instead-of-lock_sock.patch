@@ -5,8 +5,8 @@ Subject: [PATCH 2/3] can: isotp: use a private mutex instead of lock_sock()
 
 isotp_notify() takes lock_sock() of a socket that is bound to a
 vanishing CAN device while holding RTNL. Any path that holds the socket
-lock while accessing user space can therefore block RTNL. Since commit
-43c973a0887d ("can: raw, isotp: copy socket options outside of
+lock while accessing user space can therefore block RTNL. Since
+commit 43c973a0887d ("can: raw, isotp: copy socket options outside of
 lock_sock()") the CAN_ISOTP specific socket options copy their values
 outside of the socket lock, but the generic SOL_SOCKET options in
 sk_setsockopt() and sk_getsockopt() still access user space under
