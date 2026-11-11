@@ -1,4 +1,4 @@
-From 5c486a76b3b6b47c26abae9c2e2e56c18ec9bb2d Mon Sep 17 00:00:00 2001
+From 498fb14278612a4cd8f2c634a1e8dcffbc5d74c9 Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
 Date: Tue, 10 Nov 2026 18:27:18 +0000
 Subject: [PATCH 3/3] can: bcm: use a private mutex instead of lock_sock()
@@ -27,13 +27,15 @@ remove_proc_entry() waits for readers that may stall in their copy to
 user space. The socket has already left the notifier list at this
 point.
 
+Fixes: ffd980f976e7 ("[CAN]: Add broadcast manager (bcm) protocol")
+Cc: stable@vger.kernel.org # depends on "can: bcm: copy the CAN frames outside of lock_sock()"
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 ---
  net/can/bcm.c | 30 ++++++++++++++++--------------
  1 file changed, 16 insertions(+), 14 deletions(-)
 
 diff --git a/net/can/bcm.c b/net/can/bcm.c
-index d4ac2147b9..f3d93a2030 100644
+index 1595b7720c..dc9e289049 100644
 --- a/net/can/bcm.c
 +++ b/net/can/bcm.c
 @@ -145,6 +145,7 @@ struct bcm_sock {
