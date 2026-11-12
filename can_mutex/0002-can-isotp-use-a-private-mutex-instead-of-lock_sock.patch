@@ -40,7 +40,7 @@ index 7a90ba3f1c..50a3f4cd2b 100644
  	struct list_head notifier;
  	wait_queue_head_t wait;
  	spinlock_t rx_lock; /* protect single thread state machine */
-+	struct mutex conf_lock; /* protects bind and sockopts */
++	struct mutex conf_lock; /* protects bind and sockopt updates */
  };
  
  static LIST_HEAD(isotp_notifier_list);

@@ -41,7 +41,7 @@ index f14270b56f..641661ef43 100644
  	struct can_filter dfilter; /* default/single filter */
  	struct can_filter *filter; /* pointer to filter(s) */
  	struct uniqframe __percpu *uniq;
-+	struct mutex conf_lock; /* protects bind, filters and sockopts */
++	struct mutex conf_lock; /* protects bind, filters and sockopt updates */
  };
  
  static LIST_HEAD(raw_notifier_list);
