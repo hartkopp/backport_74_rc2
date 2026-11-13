@@ -1,4 +1,4 @@
-# can_mutex: RTNL-Stalls in CAN_RAW, CAN_ISOTP und CAN_BCM
+# can_mutex: RTNL-Stalls in CAN_RAW, CAN_ISOTP und CAN_BCM, Folgepatches
 
 Mainline-Patches, keine Stable-Backports.
 
@@ -35,6 +35,19 @@ Patch 3 bzw. 4 auf und stellen den Struct-Kommentar auf "sockopts".
 Diese beiden Patches sind neu geschrieben und noch nicht gegengelesen;
 der Signed-off-by des Autors ist als Vorschlag eingetragen.
 
+## Patch 8: memcg-Abrechnung für can-next (zurückgestellt)
+
+| # | Patch |
+|---|---|
+| 8 | can: enable memcg accounting for user triggered allocations |
+
+Der für v5 vorbereitete Stand ohne Abrechnung des isotp-RX-Puffers in
+`isotp_rcv_ff()` (dort nur ein Kommentar), auf Patch 7 aufgesetzt. Der
+Code ist gegenüber der vorbereiteten Fassung unverändert, die
+Changelog-Notizen unter dem `---` sind übernommen. Der Patch war Teil der
+Serie bis v4 und wird erst verschickt, wenn die Fixes in can-next
+angekommen sind; Changelog und Links sind dann anzupassen.
+
 ## Basis
 
 Mainline `067c5c24ce` (10.11.2026). Die Mails der v5 nennen als Basis
@@ -43,9 +56,9 @@ identisch.
 
 ## Prüfung
 
-- Alle sieben Dateien wenden in dieser Reihenfolge per `git am` auf die
+- Alle acht Dateien wenden in dieser Reihenfolge per `git am` auf die
   Basis an.
-- `net/can/` übersetzt nach Patch 5, 6 und 7 fehler- und warnungsfrei
+- `net/can/` übersetzt nach Patch 5, 6, 7 und 8 fehler- und warnungsfrei
   (gcc 13.3, `W=1`, mit `CONFIG_PROVE_LOCKING`, `CONFIG_DEBUG_MUTEXES` und
   `CONFIG_PROC_FS`). Kein vollständiger Kernel-Build.
 - Der Code von Patch 1 bis 5 entspricht bis auf die Struct-Kommentare dem
@@ -55,3 +68,4 @@ identisch.
   bietet sich `sockopt_test` aus der Test-Suite an, das alle CAN_RAW- und
   CAN_ISOTP-Optionen setzt und zurückliest.
 - checkpatch meldet für Patch 6 und 7 nichts.
+- Patch 8 ist nur übersetzt; die memcg-Abrechnung selbst ist ungetestet.
