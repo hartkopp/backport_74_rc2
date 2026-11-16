@@ -64,6 +64,27 @@ und wendet auch nach Patch 8 an. Er ist neu geschrieben und noch nicht
 gegengelesen; der Signed-off-by des Autors ist als Vorschlag eingetragen,
 das Fixes-Ziel ist nicht in der Git-Historie nachgeprüft.
 
+## Patch 10: isotp-Watchdog (Entwurf, Einordnung offen)
+
+| # | Patch |
+|---|---|
+| 10 | can: isotp: always start the rx watchdog in ISOTP_WAIT_DATA state |
+
+Der Empfangs-Watchdog wird in `isotp_rcv_ff()` und `isotp_rcv_cf()`
+gestartet, bevor ein Flow Control gesendet wird. Damit bleibt
+`so->rx.state` nicht ohne Timer in `ISOTP_WAIT_DATA` stehen, wenn das
+Flow Control nicht gesendet werden kann oder im Listen-Mode gar nicht
+gesendet wird. Auf einem Socket ohne Device würde der Zustand sonst
+hängen bleiben und `isotp_bind()` (mit Patch 9 auch `setsockopt()`)
+dauerhaft mit `-EAGAIN` ablehnen.
+
+Der Patch hat weder `Fixes:` noch `Cc: stable`: Im Listen-Mode ändert sich
+das Verhalten sichtbar (`ETIMEDOUT` nach einem First Frame ohne
+Consecutive Frames), ob er als Fix oder für can-next geht, ist noch zu
+entscheiden. Er ist auf Patch 9 erzeugt, wendet aber auch ohne Patch 9
+direkt nach Patch 5 an. Wird er zusammen mit Patch 9 verschickt, gehört
+er davor oder dazu. Neu geschrieben und noch nicht gegengelesen.
+
 ## Basis
 
 Mainline `067c5c24ce` (10.11.2026). Die Mails der v5 nennen als Basis
@@ -86,3 +107,5 @@ identisch.
 - checkpatch meldet für Patch 6 und 7 nichts.
 - Patch 8 ist nur übersetzt; die memcg-Abrechnung selbst ist ungetestet.
 - Patch 9 ist nur übersetzt (nach Patch 5 und nach Patch 8), nicht gelaufen.
+- Patch 10 ist nur übersetzt, nicht gelaufen; die Test-Suite deckt weder
+  den Listen-Mode noch ein fehlgeschlagenes Flow Control ab.
