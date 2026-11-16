@@ -1,0 +1,50 @@
+From d5c088144afac1880c1684ea9fc3e3f1b618e238 Mon Sep 17 00:00:00 2001
+From: Oliver Hartkopp <socketcan@hartkopp.net>
+Date: Mon, 16 Nov 2026 16:48:07 +0000
+Subject: [PATCH] can: isotp: reject socket options while a transfer is active
+
+isotp_setsockopt_locked() only checks so->bound before it changes the
+CAN_ISOTP socket options. When the bound CAN device is unregistered,
+isotp_notify() clears so->bound, but a transmission or reception that
+is already in progress is not stopped and may still be draining.
+
+isotp_sendmsg() claims so->tx.state and rechecks so->bound. After that
+it can block in sock_alloc_send_skb(), while the device is unregistered
+and so->bound is cleared. A concurrent setsockopt() can then change
+so->opt, so->ll and so->tx.ll_dl, before isotp_sendmsg() reads so->ll.mtu
+and so->tx.ll_dl again to build the CAN frame for the skb that has been
+allocated with the former so->ll.mtu.
+
+isotp_bind() already rejects a new binding while so->tx.state or
+so->rx.state are not ISOTP_IDLE for the same reason. Add this check to
+isotp_setsockopt_locked() and return -EAGAIN, so the socket options can
+only be changed when no transfer is active.
+
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Closes: https://sashiko.dev/#/bug/linux-d1d3ef49-c24e-4f3a-91ce-20f8fb222684
+Cc: stable@vger.kernel.org
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+---
+ net/can/isotp.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index 8229b6a69e..4644a1533a 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -1721,6 +1721,14 @@ static int isotp_setsockopt_locked(struct socket *sock, int optname,
+ 	if (so->bound)
+ 		return -EISCONN;
+ 
++	/* A transmission or reception that outlived a previous binding
++	 * (unbound by NETDEV_UNREGISTER) may still be draining and uses the
++	 * socket options, see isotp_bind().
++	 */
++	if (READ_ONCE(so->tx.state) != ISOTP_IDLE ||
++	    READ_ONCE(so->rx.state) != ISOTP_IDLE)
++		return -EAGAIN;
++
+ 	switch (optname) {
+ 	case CAN_ISOTP_OPTS:
+ 		memcpy(&so->opt, val, sizeof(so->opt));

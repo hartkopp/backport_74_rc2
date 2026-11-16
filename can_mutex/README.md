@@ -48,6 +48,22 @@ Changelog-Notizen unter dem `---` sind übernommen. Der Patch war Teil der
 Serie bis v4 und wird erst verschickt, wenn die Fixes in can-next
 angekommen sind; Changelog und Links sind dann anzupassen.
 
+## Patch 9: isotp-Fix (für stable, eigener Patch)
+
+| # | Patch | Fixes |
+|---|---|---|
+| 9 | can: isotp: reject socket options while a transfer is active | `e057dd3fc20f` |
+
+`isotp_setsockopt_locked()` prüft zusätzlich zu `so->bound`, dass Sende-
+und Empfangszustand idle sind, wie `isotp_bind()` es schon tut. Anlass
+ist ein Sashiko-Review zum isotp-Mutex-Patch im Pull-Request vom
+15.11.2026; das Problem bestand schon vorher und gehört nicht zur Serie.
+
+Der Patch ist auf Patch 5 erzeugt, hängt aber nicht von Patch 6 bis 8 ab
+und wendet auch nach Patch 8 an. Er ist neu geschrieben und noch nicht
+gegengelesen; der Signed-off-by des Autors ist als Vorschlag eingetragen,
+das Fixes-Ziel ist nicht in der Git-Historie nachgeprüft.
+
 ## Basis
 
 Mainline `067c5c24ce` (10.11.2026). Die Mails der v5 nennen als Basis
@@ -56,8 +72,8 @@ identisch.
 
 ## Prüfung
 
-- Alle acht Dateien wenden in dieser Reihenfolge per `git am` auf die
-  Basis an.
+- Die Dateien 1 bis 8 wenden in dieser Reihenfolge per `git am` auf die
+  Basis an, Patch 9 danach oder direkt nach Patch 5.
 - `net/can/` übersetzt nach Patch 5, 6, 7 und 8 fehler- und warnungsfrei
   (gcc 13.3, `W=1`, mit `CONFIG_PROVE_LOCKING`, `CONFIG_DEBUG_MUTEXES` und
   `CONFIG_PROC_FS`). Kein vollständiger Kernel-Build.
@@ -69,3 +85,4 @@ identisch.
   CAN_ISOTP-Optionen setzt und zurückliest.
 - checkpatch meldet für Patch 6 und 7 nichts.
 - Patch 8 ist nur übersetzt; die memcg-Abrechnung selbst ist ungetestet.
+- Patch 9 ist nur übersetzt (nach Patch 5 und nach Patch 8), nicht gelaufen.
