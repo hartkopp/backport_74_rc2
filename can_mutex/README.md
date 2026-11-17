@@ -51,12 +51,35 @@ Nachweis mit `isotp_state_test` aus der Test-Suite: ohne Patch 6 und 7
 schlagen alle vier Fälle fehl, mit beiden bestehen sie (Lauf vom
 16.11.2026 auf `7.4.0-rc3-locktest`, long, `debug_locks` danach 1).
 
-## Patches 8 und 9: Folgepatches für can-next (kein Fix, nicht stable)
+## Patch 8: netlink-Fix für statisches FD-NON-ISO (für stable, eigener Patch)
+
+| # | Patch | Fixes |
+|---|---|---|
+| 8 | can: netlink: fix static FD-NON-ISO mode validation | `6742ca18cb41` |
+
+Unabhängig von den übrigen Patches, betrifft nur
+`drivers/net/can/dev/netlink.c`. Alternative zu "[PATCH net v2] can:
+netlink: fix static FD-NON-ISO mode validation" von Zhu Ling.
+
+- Seit 6742ca18cb41 wird bei Controllern mit statischem FD-NON-ISO
+  (M_CAN v3.0.x/v3.1.x, pcan_usb_fd mit Firmware < 2.x) jede
+  `IFLA_CAN_CTRLMODE`-Anfrage ohne `fd-non-iso on` mit "missing required
+  FD-NON-ISO static control mode" abgelehnt, auch `fd off` oder
+  `loopback on`. Die Ausnahme wirkt jetzt auf `ctrlstatic_missing`.
+- Anders als v2 wird ein statischer Modus nicht nachträglich wieder in
+  `priv->ctrlmode` gesetzt, sondern eine Anfrage, die ihn ausdrücklich
+  abschaltet (z. B. `fd-non-iso off` bei FD an), mit "static control
+  mode ... can not be switched off" abgelehnt. v2 meldet dort Erfolg,
+  ohne etwas zu ändern.
+
+Ohne Signed-off-by, der muss vor dem Versand noch eingetragen werden.
+
+## Patches 9 und 10: Folgepatches für can-next (kein Fix, nicht stable)
 
 | # | Patch |
 |---|---|
-| 8 | can: raw: read socket options under conf_lock in raw_getsockopt() |
-| 9 | can: isotp: read socket options under conf_lock in isotp_getsockopt() |
+| 9 | can: raw: read socket options under conf_lock in raw_getsockopt() |
+| 10 | can: isotp: read socket options under conf_lock in isotp_getsockopt() |
 
 Beide lesen die Optionswerte unter `conf_lock` in eine lokale Variable und
 kopieren sie erst nach `mutex_unlock()` in den User-Space. Sie setzen auf
@@ -65,14 +88,14 @@ Patch 3 bzw. 4 auf und stellen den Struct-Kommentar auf "sockopts".
 Diese beiden Patches sind neu geschrieben und noch nicht gegengelesen;
 der Signed-off-by des Autors ist als Vorschlag eingetragen.
 
-## Patch 10: memcg-Abrechnung für can-next (zurückgestellt)
+## Patch 11: memcg-Abrechnung für can-next (zurückgestellt)
 
 | # | Patch |
 |---|---|
-| 10 | can: enable memcg accounting for user triggered allocations |
+| 11 | can: enable memcg accounting for user triggered allocations |
 
 Der für v5 vorbereitete Stand ohne Abrechnung des isotp-RX-Puffers in
-`isotp_rcv_ff()` (dort nur ein Kommentar), auf Patch 9 aufgesetzt. Der
+`isotp_rcv_ff()` (dort nur ein Kommentar), auf Patch 10 aufgesetzt. Der
 Code ist gegenüber der vorbereiteten Fassung unverändert, die
 Changelog-Notizen unter dem `---` sind übernommen. Der Patch war Teil der
 Serie bis v4 und wird erst verschickt, wenn die Fixes in can-next
@@ -86,21 +109,26 @@ identisch.
 
 ## Prüfung
 
-- Die Dateien 1 bis 10 wenden in dieser Reihenfolge per `git am` auf die
+- Die Dateien 1 bis 11 wenden in dieser Reihenfolge per `git am` auf die
   Basis an.
-- `net/can/` übersetzt nach jedem der Patches 5 bis 10 fehler- und
-  warnungsfrei (gcc 13.3, `W=1`, mit `CONFIG_PROVE_LOCKING`,
-  `CONFIG_DEBUG_MUTEXES` und `CONFIG_PROC_FS`). Kein vollständiger
-  Kernel-Build.
+- `net/can/` und `drivers/net/can/dev/` übersetzen nach jedem der
+  Patches 5 bis 11 fehler- und warnungsfrei (gcc 13.3, `W=1`, mit
+  `CONFIG_PROVE_LOCKING`, `CONFIG_DEBUG_MUTEXES` und `CONFIG_PROC_FS`).
+  Kein vollständiger Kernel-Build.
 - Der Code von Patch 1 bis 5 entspricht bis auf die Struct-Kommentare dem
   Stand, der mit der Test-Suite (`sockopt_stall`, `sockopt_churn`,
   `shared_sock` u. a.) unter lockdep und KASAN gelaufen ist.
 - Patch 6 und 7 sind mit der Test-Suite gelaufen (siehe oben). Ein
   fehlgeschlagenes Flow Control im normalen Modus ist von User-Space aus
   nicht gezielt auslösbar und nicht eigens getestet.
-- Patch 8 und 9 sind nur übersetzt. Als Funktionstest bietet sich
+- Patch 8 ist übersetzt (`drivers/net/can/dev/`, `W=1`, warnungsfrei);
+  das Verhalten ist nur mit einer Simulation der Prüflogik in
+  `can_ctrlmode_changelink()` nachvollzogen, nicht auf M_CAN- oder
+  pcan_usb_fd-Hardware getestet. checkpatch meldet außer der unbekannten
+  Commit-ID den fehlenden Signed-off-by.
+- Patch 9 und 10 sind nur übersetzt. Als Funktionstest bietet sich
   `sockopt_test` aus der Test-Suite an, das alle CAN_RAW- und
   CAN_ISOTP-Optionen setzt und zurückliest.
-- Patch 10 ist nur übersetzt; die memcg-Abrechnung selbst ist ungetestet.
-- checkpatch meldet für Patch 6 bis 10 nichts außer den bei mir
+- Patch 11 ist nur übersetzt; die memcg-Abrechnung selbst ist ungetestet.
+- checkpatch meldet für Patch 6, 7 und 9 bis 11 nichts außer den bei mir
   unbekannten Commit-IDs in den `Fixes:`-Zeilen.

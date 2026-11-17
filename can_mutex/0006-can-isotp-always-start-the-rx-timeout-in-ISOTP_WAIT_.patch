@@ -1,7 +1,7 @@
 From 05596c3c9d85f9a081a14dfd0051c5180555331a Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
 Date: Tue, 17 Nov 2026 08:13:03 +0000
-Subject: [PATCH 06/10] can: isotp: always start the rx timeout in
+Subject: [PATCH 06/11] can: isotp: always start the rx timeout in
  ISOTP_WAIT_DATA state
 
 The rx timeout is only started at the end of isotp_send_fc() and for

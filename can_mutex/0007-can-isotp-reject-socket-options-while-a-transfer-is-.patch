@@ -1,7 +1,7 @@
 From d69b71e89724c2c89db4635545b7e6d6aa665203 Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
 Date: Tue, 17 Nov 2026 08:13:05 +0000
-Subject: [PATCH 07/10] can: isotp: reject socket options while a transfer is
+Subject: [PATCH 07/11] can: isotp: reject socket options while a transfer is
  active
 
 isotp_setsockopt_locked() only checks so->bound before it changes the

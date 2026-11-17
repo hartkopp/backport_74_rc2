@@ -1,7 +1,7 @@
 From bc95f735fb8b1de12bc4ba1b3f8a3b1bddea2fee Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
 Date: Fri, 13 Nov 2026 11:00:14 +0000
-Subject: [PATCH 09/10] can: isotp: read socket options under conf_lock in
+Subject: [PATCH 10/11] can: isotp: read socket options under conf_lock in
  isotp_getsockopt()
 
 isotp_getsockopt() copies the CAN_ISOTP socket options to user space
