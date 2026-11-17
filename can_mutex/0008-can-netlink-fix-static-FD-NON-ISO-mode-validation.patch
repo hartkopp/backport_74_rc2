@@ -30,7 +30,10 @@ the 'priv->ctrlmode &= ~cm->mask' operation as every static bit in
 cm->mask is also set in maskedflags.
 
 Fixes: 6742ca18cb41 ("can: netlink: add userland error messages")
+Reported-by: Zhu Ling <zhuling0805@qq.com>
+Closes: https://lore.kernel.org/all/tencent_3A964832542399A780E646D6A6246335C409@qq.com/
 Cc: stable@vger.kernel.org
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 ---
  drivers/net/can/dev/netlink.c | 10 +++++++++-
  1 file changed, 9 insertions(+), 1 deletion(-)

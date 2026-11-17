@@ -72,7 +72,8 @@ netlink: fix static FD-NON-ISO mode validation" von Zhu Ling.
   mode ... can not be switched off" abgelehnt. v2 meldet dort Erfolg,
   ohne etwas zu ändern.
 
-Ohne Signed-off-by, der muss vor dem Versand noch eingetragen werden.
+Reported-by und Closes verweisen auf die v2 von Zhu Ling, der
+Signed-off-by des Autors ist eingetragen.
 
 ## Patches 9 und 10: Folgepatches für can-next (kein Fix, nicht stable)
 
@@ -124,8 +125,8 @@ identisch.
 - Patch 8 ist übersetzt (`drivers/net/can/dev/`, `W=1`, warnungsfrei);
   das Verhalten ist nur mit einer Simulation der Prüflogik in
   `can_ctrlmode_changelink()` nachvollzogen, nicht auf M_CAN- oder
-  pcan_usb_fd-Hardware getestet. checkpatch meldet außer der unbekannten
-  Commit-ID den fehlenden Signed-off-by.
+  pcan_usb_fd-Hardware getestet. checkpatch meldet nur die unbekannte
+  Commit-ID.
 - Patch 9 und 10 sind nur übersetzt. Als Funktionstest bietet sich
   `sockopt_test` aus der Test-Suite an, das alle CAN_RAW- und
   CAN_ISOTP-Optionen setzt und zurückliest.
