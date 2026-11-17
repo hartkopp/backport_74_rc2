@@ -1,17 +1,17 @@
-From b835930f360b2df3361e41e23ff3e1509f938c74 Mon Sep 17 00:00:00 2001
+From d388c39545bc0bc8399a05cd0d06d8fd3ea2b363 Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
-Date: Tue, 17 Nov 2026 08:06:13 +0000
-Subject: [PATCH 09/10] can: isotp: always start the rx watchdog in
+Date: Tue, 17 Nov 2026 08:13:03 +0000
+Subject: [PATCH 09/10] can: isotp: always start the rx timeout in
  ISOTP_WAIT_DATA state
 
-The rx timeout watchdog is only started at the end of isotp_send_fc()
-and for consecutive frames inside a block in isotp_rcv_cf(). So
-so->rx.state can stay in ISOTP_WAIT_DATA without a running watchdog:
+The rx timeout is only started at the end of isotp_send_fc() and for
+consecutive frames inside a block in isotp_rcv_cf(). So so->rx.state
+can stay in ISOTP_WAIT_DATA without a running rx timeout:
 
 - isotp_send_fc() returns early, when it can not allocate the skb or
   does not find the CAN device anymore
 - isotp_rcv_ff() does not send a flow control frame in listen mode
-- isotp_rcv_cf() has stopped the watchdog and does not restart it at
+- isotp_rcv_cf() has stopped the rx timeout and does not restart it at
   the end of a block, when the flow control frame is not sent
 
 On a bound socket the next first frame or single frame resets the
@@ -19,10 +19,10 @@ state. But when the CAN device has been removed, no further CAN frame
 is received and so->rx.state remains in ISOTP_WAIT_DATA. isotp_bind()
 then rejects a new binding with -EAGAIN until the socket is closed.
 
-Start the watchdog in isotp_rcv_ff() and isotp_rcv_cf() whenever the
+Start the rx timeout in isotp_rcv_ff() and isotp_rcv_cf() whenever the
 reception continues in ISOTP_WAIT_DATA state, before a flow control
-frame is sent. isotp_send_fc() restarts the watchdog as before. All
-this runs under so->rx_lock, so the order of the watchdog start and
+frame is sent. isotp_send_fc() restarts the rx timeout as before. All
+this runs under so->rx_lock, so the order of the rx timeout start and
 the transmission of the flow control frame does not matter.
 
 In listen mode a first frame that is not followed by consecutive
@@ -39,14 +39,14 @@ Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
  1 file changed, 9 insertions(+), 5 deletions(-)
 
 diff --git a/net/can/isotp.c b/net/can/isotp.c
-index 8229b6a69e..41085cb2d6 100644
+index 8229b6a69e..0293d59018 100644
 --- a/net/can/isotp.c
 +++ b/net/can/isotp.c
 @@ -634,6 +634,10 @@ static int isotp_rcv_ff(struct sock *sk, struct canfd_frame *cf, int ae)
  	so->rx.sn = 1;
  	WRITE_ONCE(so->rx.state, ISOTP_WAIT_DATA);
  
-+	/* start rx timeout watchdog, isotp_send_fc() restarts it */
++	/* start rx timeout, isotp_send_fc() restarts it */
 +	hrtimer_start(&so->rxtimer, ktime_set(ISOTP_FC_TIMEOUT, 0),
 +		      HRTIMER_MODE_REL_SOFT);
 +
@@ -57,7 +57,7 @@ index 8229b6a69e..41085cb2d6 100644
  		return 0;
  	}
  
-+	/* start rx timeout watchdog, isotp_send_fc() restarts it */
++	/* start rx timeout, isotp_send_fc() restarts it */
 +	hrtimer_start(&so->rxtimer, ktime_set(ISOTP_FC_TIMEOUT, 0),
 +		      HRTIMER_MODE_REL_SOFT);
 +

@@ -1,6 +1,6 @@
-From ca9048e12a2c278f90ae22c2fb69ad43f9a29e63 Mon Sep 17 00:00:00 2001
+From fc3993dc40df589d09829fe599174488f1a9edcc Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
-Date: Tue, 17 Nov 2026 08:06:19 +0000
+Date: Tue, 17 Nov 2026 08:13:05 +0000
 Subject: [PATCH 10/10] can: isotp: reject socket options while a transfer is
  active
 
@@ -33,7 +33,7 @@ Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
  1 file changed, 8 insertions(+)
 
 diff --git a/net/can/isotp.c b/net/can/isotp.c
-index 41085cb2d6..da5d0fc87b 100644
+index 0293d59018..32c88749d7 100644
 --- a/net/can/isotp.c
 +++ b/net/can/isotp.c
 @@ -1725,6 +1725,14 @@ static int isotp_setsockopt_locked(struct socket *sock, int optname,

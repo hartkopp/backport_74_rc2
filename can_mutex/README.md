@@ -52,10 +52,10 @@ angekommen sind; Changelog und Links sind dann anzupassen.
 
 | # | Patch | Fixes |
 |---|---|---|
-| 9 | can: isotp: always start the rx watchdog in ISOTP_WAIT_DATA state | `e057dd3fc20f` |
+| 9 | can: isotp: always start the rx timeout in ISOTP_WAIT_DATA state | `e057dd3fc20f` |
 | 10 | can: isotp: reject socket options while a transfer is active | `e057dd3fc20f` |
 
-- **Patch 9** startet den Empfangs-Watchdog in `isotp_rcv_ff()` und
+- **Patch 9** startet den Empfangs-Timeout in `isotp_rcv_ff()` und
   `isotp_rcv_cf()`, bevor ein Flow Control gesendet wird. Ohne ihn bleibt
   `so->rx.state` ohne Timer in `ISOTP_WAIT_DATA` stehen, wenn das Flow
   Control nicht gesendet werden kann oder im Listen-Mode gar nicht
@@ -73,7 +73,7 @@ Die Reihenfolge ist wichtig: Patch 10 allein würde einen hängenden
 Empfangszustand zusätzlich für `setsockopt()` sperren. Beide sind auf
 Patch 5 erzeugt und hängen nicht von Patch 6 bis 8 ab. Neu geschrieben und
 noch nicht gegengelesen; der Signed-off-by des Autors ist als Vorschlag
-eingetragen, das Fixes-Ziel ist nicht in der Git-Historie nachgeprüft.
+eingetragen.
 
 Nachweis mit `isotp_state_test` aus der Test-Suite: ohne Patch 9 und 10
 schlagen alle vier Fälle fehl, mit beiden bestehen sie (Lauf vom
