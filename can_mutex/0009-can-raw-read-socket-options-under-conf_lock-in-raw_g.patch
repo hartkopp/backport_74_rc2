@@ -1,4 +1,4 @@
-From d0a613842d013ad42bd271c8663ed52fea21b817 Mon Sep 17 00:00:00 2001
+From 125d485e2974376b9d5ff4c2c44abc7148ad2726 Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
 Date: Fri, 13 Nov 2026 10:59:58 +0000
 Subject: [PATCH 09/11] can: raw: read socket options under conf_lock in

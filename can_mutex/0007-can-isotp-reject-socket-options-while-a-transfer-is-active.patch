@@ -1,8 +1,26 @@
-From d69b71e89724c2c89db4635545b7e6d6aa665203 Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
-Date: Tue, 17 Nov 2026 08:13:05 +0000
-Subject: [PATCH 07/11] can: isotp: reject socket options while a transfer is
- active
+Date: Tue, 17 Nov 2026 17:30:15 +0100
+Subject: [PATCH v6 7/8] can: isotp: reject socket options while a transfer
+ is active
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261117-can-bcmlock-memcg-v6-7-37104bf4eea8@hartkopp.net>
+References: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
+In-Reply-To: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
+To: linux-can@vger.kernel.org
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>, 
+ Oleksij Rempel <o.rempel@pengutronix.de>, 
+ Vincent Mailhol <mailhol@kernel.org>, Zhu Ling <zhuling0805@qq.com>, 
+ Sashiko <sashiko-bot@kernel.org>, Oliver Hartkopp <socketcan@hartkopp.net>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794933008; l=2173;
+ i=socketcan@hartkopp.net; s=20260128; h=from:subject:message-id;
+ bh=cxyYakm5ZEMOP7CKuBNKfupIG+xrxlaWjg5iLUXm6Pw=;
+ b=T5DouD99Yzms3e2KunAEGTVOHniDZvIUf1EuDfyLc5iWx1g5DrURBo52B1cXn8iCJEAi+diBj
+ JHu8EsUW++gDPFStszI9FQ/oQD8i6AzATjGrwpsCd0LxYqpWA61Dxz8
+X-Developer-Key: i=socketcan@hartkopp.net; a=ed25519;
+ pk=/gU/7/wBqak3kTsTeFbCCqUi9dnh+1i6ITEkfPj/BvU=
 
 isotp_setsockopt_locked() only checks so->bound before it changes the
 CAN_ISOTP socket options. When the bound CAN device is unregistered,
@@ -33,10 +51,12 @@ Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
  1 file changed, 8 insertions(+)
 
 diff --git a/net/can/isotp.c b/net/can/isotp.c
-index 0293d59018..32c88749d7 100644
+index 0293d590186c..32c88749d75e 100644
 --- a/net/can/isotp.c
 +++ b/net/can/isotp.c
-@@ -1725,6 +1725,14 @@ static int isotp_setsockopt_locked(struct socket *sock, int optname,
+@@ -1723,10 +1723,18 @@ static int isotp_setsockopt_locked(struct socket *sock, int optname,
+ 	int ret = 0;
+ 
  	if (so->bound)
  		return -EISCONN;
  
@@ -51,3 +71,9 @@ index 0293d59018..32c88749d7 100644
  	switch (optname) {
  	case CAN_ISOTP_OPTS:
  		memcpy(&so->opt, val, sizeof(so->opt));
+ 
+ 		/* no separate rx_ext_address is given => use ext_address */
+
+-- 
+2.53.0
+

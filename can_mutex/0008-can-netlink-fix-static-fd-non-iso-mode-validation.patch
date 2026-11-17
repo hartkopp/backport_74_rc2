@@ -1,0 +1,98 @@
+From: Oliver Hartkopp <socketcan@hartkopp.net>
+Date: Tue, 17 Nov 2026 17:30:16 +0100
+Subject: [PATCH v6 8/8] can: netlink: fix static FD-NON-ISO mode validation
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261117-can-bcmlock-memcg-v6-8-37104bf4eea8@hartkopp.net>
+References: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
+In-Reply-To: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
+To: linux-can@vger.kernel.org
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>, 
+ Oleksij Rempel <o.rempel@pengutronix.de>, 
+ Vincent Mailhol <mailhol@kernel.org>, Zhu Ling <zhuling0805@qq.com>, 
+ Oliver Hartkopp <socketcan@hartkopp.net>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794933008; l=3310;
+ i=socketcan@hartkopp.net; s=20260128; h=from:subject:message-id;
+ bh=Jcyp7DaVrbq4wHlDgGvCxc/oywDiIHnHVLfdhYJ/mjg=;
+ b=Li+0b/2E/IB0binm9KxnETJpDoo1WfCGvx5LIb3U0y49PHqRPv+P0UIHSv/Az75r9ul+tSnUJ
+ MpUKY4Zko4ADHHxq+uhvPgqpOg15q2qEwFQbPagCL+sbYoposHMez95
+X-Developer-Key: i=socketcan@hartkopp.net; a=ed25519;
+ pk=/gU/7/wBqak3kTsTeFbCCqUi9dnh+1i6ITEkfPj/BvU=
+
+From: Zhu Ling <zhuling0805@qq.com>
+
+Controllers with a static CAN_CTRLMODE_FD_NON_ISO mode (M_CAN v3.0.x and
+v3.1.x, PEAK pcan_usb_fd with firmware < 2.x) do not require the
+'fd-non-iso' option to be provided when CAN FD is not switched on by the
+IFLA_CAN_CTRLMODE request.
+
+Since commit 6742ca18cb41 ("can: netlink: add userland error messages")
+ctrlstatic_missing is calculated before this exception is applied to
+ctrlstatic, which is not evaluated afterwards. As a result every
+IFLA_CAN_CTRLMODE request on such controllers that does not contain
+'fd-non-iso on' is rejected with -EOPNOTSUPP and "missing required
+FD-NON-ISO static control mode", e.g. 'fd off', 'loopback on' or
+'one-shot on', regardless of the current CAN FD state.
+
+Apply the exception to ctrlstatic_missing instead.
+
+The exception must only relax the requirement to *provide* the static
+FD-NON-ISO mode. It must not allow to *switch off* a static mode: before
+the above mentioned commit a request like 'fd-non-iso off' passed the
+check and removed the static CAN_CTRLMODE_FD_NON_ISO bit from
+priv->ctrlmode. As can_get_static_ctrlmode() derives the static modes
+from priv->ctrlmode, this information was lost permanently. Therefore
+reject any request that explicitly switches off a static control mode
+with a dedicated error message. With this check in place a static mode
+can never be cleared by the 'priv->ctrlmode &= ~cm->mask' operation as
+every static bit in cm->mask is also set in maskedflags.
+
+The request is rejected independent of the resulting CAN FD state, as
+accepting it while CAN FD is switched off would remove the static mode
+from priv->ctrlmode as well.
+
+Fixes: 6742ca18cb41 ("can: netlink: add userland error messages")
+Cc: stable@vger.kernel.org
+Signed-off-by: Zhu Ling <zhuling0805@qq.com>
+Link: https://lore.kernel.org/all/tencent_3A964832542399A780E646D6A6246335C409@qq.com/
+[Hartkopp: reject switching off static control modes instead of restoring
+ them, extend the commit message (Sashiko review)]
+Link: https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261115095746.709371-1-mkl%40pengutronix.de
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+---
+ drivers/net/can/dev/netlink.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/can/dev/netlink.c b/drivers/net/can/dev/netlink.c
+index 081dfddda000..521e2496e2cc 100644
+--- a/drivers/net/can/dev/netlink.c
++++ b/drivers/net/can/dev/netlink.c
+@@ -328,13 +328,21 @@ static int can_ctrlmode_changelink(struct net_device *dev,
+ 				   "requested control mode %s not supported",
+ 				   can_get_ctrlmode_str(notsupp));
+ 		return -EOPNOTSUPP;
+ 	}
+ 
++	/* static control modes can not be switched off */
++	if (deactivated & ctrlstatic) {
++		NL_SET_ERR_MSG_FMT(extack,
++				   "static control mode %s can not be switched off",
++				   can_get_ctrlmode_str(deactivated & ctrlstatic));
++		return -EOPNOTSUPP;
++	}
++
+ 	/* do not check for static fd-non-iso if 'fd' is disabled */
+ 	if (!(maskedflags & CAN_CTRLMODE_FD))
+-		ctrlstatic &= ~CAN_CTRLMODE_FD_NON_ISO;
++		ctrlstatic_missing &= ~CAN_CTRLMODE_FD_NON_ISO;
+ 
+ 	if (ctrlstatic_missing) {
+ 		NL_SET_ERR_MSG_FMT(extack,
+ 				   "missing required %s static control mode",
+ 				   can_get_ctrlmode_str(ctrlstatic_missing));
+
+-- 
+2.53.0
+

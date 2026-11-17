@@ -1,8 +1,26 @@
-From 05596c3c9d85f9a081a14dfd0051c5180555331a Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
-Date: Tue, 17 Nov 2026 08:13:03 +0000
-Subject: [PATCH 06/11] can: isotp: always start the rx timeout in
+Date: Tue, 17 Nov 2026 17:30:14 +0100
+Subject: [PATCH v6 6/8] can: isotp: always start the rx timeout in
  ISOTP_WAIT_DATA state
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261117-can-bcmlock-memcg-v6-6-37104bf4eea8@hartkopp.net>
+References: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
+In-Reply-To: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
+To: linux-can@vger.kernel.org
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>, 
+ Oleksij Rempel <o.rempel@pengutronix.de>, 
+ Vincent Mailhol <mailhol@kernel.org>, Zhu Ling <zhuling0805@qq.com>, 
+ Oliver Hartkopp <socketcan@hartkopp.net>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794933008; l=3068;
+ i=socketcan@hartkopp.net; s=20260128; h=from:subject:message-id;
+ bh=nOnAknM8gO/4TOQpTZV5r1xhTQol9ScA2AjYvJmAM5M=;
+ b=yZqrf4w5OSRfO6LJpR5QMZV/bOxA09pv1rvk3uKf7yeEpSndIvN6DUyIBwJWkaXlNXnmVLKFR
+ OICpz9w68gxAzf2wvW2QPWW30KsskTy73mWXFr7GZws710Wc5FLe3JZ
+X-Developer-Key: i=socketcan@hartkopp.net; a=ed25519;
+ pk=/gU/7/wBqak3kTsTeFbCCqUi9dnh+1i6ITEkfPj/BvU=
 
 The rx timeout is only started at the end of isotp_send_fc() and for
 consecutive frames inside a block in isotp_rcv_cf(). So so->rx.state
@@ -39,10 +57,12 @@ Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
  1 file changed, 9 insertions(+), 5 deletions(-)
 
 diff --git a/net/can/isotp.c b/net/can/isotp.c
-index 8229b6a69e..0293d59018 100644
+index 8229b6a69ecd..0293d590186c 100644
 --- a/net/can/isotp.c
 +++ b/net/can/isotp.c
-@@ -634,6 +634,10 @@ static int isotp_rcv_ff(struct sock *sk, struct canfd_frame *cf, int ae)
+@@ -632,10 +632,14 @@ static int isotp_rcv_ff(struct sock *sk, struct canfd_frame *cf, int ae)
+ 
+ 	/* initial setup for this pdu reception */
  	so->rx.sn = 1;
  	WRITE_ONCE(so->rx.state, ISOTP_WAIT_DATA);
  
@@ -53,7 +73,11 @@ index 8229b6a69e..0293d59018 100644
  	/* no creation of flow control frames */
  	if (so->opt.flags & CAN_ISOTP_LISTEN_MODE)
  		return 0;
-@@ -726,13 +730,13 @@ static int isotp_rcv_cf(struct sock *sk, struct canfd_frame *cf, int ae,
+ 
+ 	/* send our first FC frame */
+@@ -724,17 +728,17 @@ static int isotp_rcv_cf(struct sock *sk, struct canfd_frame *cf, int ae,
+ 		nskb->dev = skb->dev;
+ 		isotp_rcv_skb(nskb, sk);
  		return 0;
  	}
  
@@ -72,3 +96,9 @@ index 8229b6a69e..0293d59018 100644
  
  	/* no creation of flow control frames */
  	if (so->opt.flags & CAN_ISOTP_LISTEN_MODE)
+ 		return 0;
+ 
+
+-- 
+2.53.0
+

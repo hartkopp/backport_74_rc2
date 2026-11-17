@@ -2,32 +2,30 @@
 
 Mainline-Patches, keine Stable-Backports.
 
-## Patches 1 bis 5: Serie v5 (Fixes, für stable markiert)
+## Patches 1 bis 8: Serie v6 (Fixes, für stable markiert)
 
-"[PATCH v5 0/5] can: avoid RTNL stalls in CAN_RAW, CAN_ISOTP and CAN_BCM",
-unverändert die mit b4 erzeugten Mails vom 13.11.2026 (lokale Ausgabe,
-die Message-IDs der verschickten Serie weichen ab).
+"[PATCH v6 0/8] can: avoid RTNL stalls and fix CAN_ISOTP and netlink
+issues", unverändert die mit b4 erzeugten Mails vom 17.11.2026 (lokale
+Ausgabe, die Message-IDs der verschickten Serie können abweichen). Die
+Serie ersetzt im Pull-Request "pull-request: can 2026-11-15" von Marc
+Kleine-Budde die fünf Patches der v5 und Zhu Lings Patch 3/9.
 
-| # | Patch | Fixes |
-|---|---|---|
-| 1 | can: bcm: copy the CAN frames outside of lock_sock() | `ffd980f976e7` |
-| 2 | can: bcm: do not remove the procfs entry in bcm_notify() | `76fe372ccb81` |
-| 3 | can: raw: use a private mutex instead of lock_sock() | `c18ce101f2e4` |
-| 4 | can: isotp: use a private mutex instead of lock_sock() | `e057dd3fc20f` |
-| 5 | can: bcm: use a private mutex instead of lock_sock() | `ffd980f976e7` |
+| # | Patch | Autor | Fixes |
+|---|---|---|---|
+| 1 | can: bcm: copy the CAN frames outside of lock_sock() | Oliver Hartkopp | `ffd980f976e7` |
+| 2 | can: bcm: do not remove the procfs entry in bcm_notify() | Oliver Hartkopp | `76fe372ccb81` |
+| 3 | can: raw: use a private mutex instead of lock_sock() | Oliver Hartkopp | `c18ce101f2e4` |
+| 4 | can: isotp: use a private mutex instead of lock_sock() | Oliver Hartkopp | `e057dd3fc20f` |
+| 5 | can: bcm: use a private mutex instead of lock_sock() | Oliver Hartkopp | `ffd980f976e7` |
+| 6 | can: isotp: always start the rx timeout in ISOTP_WAIT_DATA state | Oliver Hartkopp | `e057dd3fc20f` |
+| 7 | can: isotp: reject socket options while a transfer is active | Oliver Hartkopp | `e057dd3fc20f` |
+| 8 | can: netlink: fix static FD-NON-ISO mode validation | Zhu Ling | `6742ca18cb41` |
 
-Patch 3 bis 5 ersetzen `lock_sock()` durch den Mutex `conf_lock` in der
-jeweiligen Socket-Struktur, damit die generischen `SOL_SOCKET`-Optionen
-die Notifier nicht mehr unter RTNL aufhalten können. Patch 3 und 4
-brauchen den Commit 43c973a0887d, Patch 5 braucht Patch 1 und 2.
-
-## Patches 6 und 7: isotp-Fixes (für stable, eigene Patches)
-
-| # | Patch | Fixes |
-|---|---|---|
-| 6 | can: isotp: always start the rx timeout in ISOTP_WAIT_DATA state | `e057dd3fc20f` |
-| 7 | can: isotp: reject socket options while a transfer is active | `e057dd3fc20f` |
-
+- **Patch 1 bis 5** sind unverändert die v5: Patch 1 und 2 vermeiden
+  RTNL-Stalls in CAN_BCM, Patch 3 bis 5 ersetzen `lock_sock()` durch den
+  Mutex `conf_lock`, damit die generischen `SOL_SOCKET`-Optionen die
+  Notifier nicht mehr unter RTNL aufhalten können. Patch 3 und 4 brauchen
+  den Commit 43c973a0887d, Patch 5 braucht Patch 1 und 2.
 - **Patch 6** startet den Empfangs-Timeout in `isotp_rcv_ff()` und
   `isotp_rcv_cf()`, bevor ein Flow Control gesendet wird. Ohne ihn bleibt
   `so->rx.state` ohne Timer in `ISOTP_WAIT_DATA` stehen, wenn das Flow
@@ -38,42 +36,17 @@ brauchen den Commit 43c973a0887d, Patch 5 braucht Patch 1 und 2.
   Block es schon tut.
 - **Patch 7** prüft in `isotp_setsockopt_locked()` zusätzlich zu
   `so->bound`, dass Sende- und Empfangszustand idle sind, wie
-  `isotp_bind()` es schon tut. Anlass ist ein Sashiko-Review zum
-  isotp-Mutex-Patch im Pull-Request vom 15.11.2026; das Problem bestand
-  schon vorher.
-
-Die Reihenfolge ist wichtig: Patch 7 allein würde einen hängenden
-Empfangszustand zusätzlich für `setsockopt()` sperren. Beide setzen auf
-Patch 5 auf. Neu geschrieben und noch nicht gegengelesen; der
-Signed-off-by des Autors ist als Vorschlag eingetragen.
-
-Nachweis mit `isotp_state_test` aus der Test-Suite: ohne Patch 6 und 7
-schlagen alle vier Fälle fehl, mit beiden bestehen sie (Lauf vom
-16.11.2026 auf `7.4.0-rc3-locktest`, long, `debug_locks` danach 1).
-
-## Patch 8: netlink-Fix für statisches FD-NON-ISO (für stable, eigener Patch)
-
-| # | Patch | Fixes |
-|---|---|---|
-| 8 | can: netlink: fix static FD-NON-ISO mode validation | `6742ca18cb41` |
-
-Unabhängig von den übrigen Patches, betrifft nur
-`drivers/net/can/dev/netlink.c`. Alternative zu "[PATCH net v2] can:
-netlink: fix static FD-NON-ISO mode validation" von Zhu Ling.
-
-- Seit 6742ca18cb41 wird bei Controllern mit statischem FD-NON-ISO
-  (M_CAN v3.0.x/v3.1.x, pcan_usb_fd mit Firmware < 2.x) jede
-  `IFLA_CAN_CTRLMODE`-Anfrage ohne `fd-non-iso on` mit "missing required
-  FD-NON-ISO static control mode" abgelehnt, auch `fd off` oder
-  `loopback on`. Die Ausnahme wirkt jetzt auf `ctrlstatic_missing`.
-- Anders als v2 wird ein statischer Modus nicht nachträglich wieder in
-  `priv->ctrlmode` gesetzt, sondern eine Anfrage, die ihn ausdrücklich
-  abschaltet (z. B. `fd-non-iso off` bei FD an), mit "static control
-  mode ... can not be switched off" abgelehnt. v2 meldet dort Erfolg,
-  ohne etwas zu ändern.
-
-Reported-by und Closes verweisen auf die v2 von Zhu Ling, der
-Signed-off-by des Autors ist eingetragen.
+  `isotp_bind()` es schon tut. Anlass ist das Sashiko-Review zu Patch 4
+  im Pull-Request. Patch 6 muss vorher kommen, sonst würde ein hängender
+  Empfangszustand zusätzlich `setsockopt()` sperren.
+- **Patch 8** ist Zhu Lings Fix aus dem Pull-Request, nach dem
+  Sashiko-Review überarbeitet: Statt die statischen Modi nach dem Update
+  wiederherzustellen, wird eine Anfrage, die einen statischen Modus
+  ausschaltet, mit eigener Fehlermeldung abgelehnt, unabhängig vom
+  resultierenden FD-Zustand. Der Commit-Text beschreibt die volle
+  Auswirkung. Zhu Ling bleibt Autor, die Überarbeitung ist als
+  `[Hartkopp: ...]`-Notiz vermerkt. Zhus übrige Netlink-Patches aus dem
+  Pull-Request (5/9 und 7/9) wenden unverändert auf Patch 8 an.
 
 ## Patches 9 und 10: Folgepatches für can-next (kein Fix, nicht stable)
 
@@ -104,7 +77,7 @@ angekommen sind; Changelog und Links sind dann anzupassen.
 
 ## Basis
 
-Mainline `067c5c24ce` (10.11.2026). Die Mails der v5 nennen als Basis
+Mainline `067c5c24ce` (10.11.2026). Die Mails der v6 nennen als Basis
 `30c71476d842` aus dem net-Tree; die betroffenen Dateien sind dort
 identisch.
 
@@ -112,24 +85,22 @@ identisch.
 
 - Die Dateien 1 bis 11 wenden in dieser Reihenfolge per `git am` auf die
   Basis an.
-- `net/can/` und `drivers/net/can/dev/` übersetzen nach jedem der
-  Patches 5 bis 11 fehler- und warnungsfrei (gcc 13.3, `W=1`, mit
-  `CONFIG_PROVE_LOCKING`, `CONFIG_DEBUG_MUTEXES` und `CONFIG_PROC_FS`).
-  Kein vollständiger Kernel-Build.
-- Der Code von Patch 1 bis 5 entspricht bis auf die Struct-Kommentare dem
-  Stand, der mit der Test-Suite (`sockopt_stall`, `sockopt_churn`,
-  `shared_sock` u. a.) unter lockdep und KASAN gelaufen ist.
-- Patch 6 und 7 sind mit der Test-Suite gelaufen (siehe oben). Ein
-  fehlgeschlagenes Flow Control im normalen Modus ist von User-Space aus
-  nicht gezielt auslösbar und nicht eigens getestet.
-- Patch 8 ist übersetzt (`drivers/net/can/dev/`, `W=1`, warnungsfrei);
-  das Verhalten ist nur mit einer Simulation der Prüflogik in
-  `can_ctrlmode_changelink()` nachvollzogen, nicht auf M_CAN- oder
-  pcan_usb_fd-Hardware getestet. checkpatch meldet nur die unbekannte
-  Commit-ID.
+- `net/can/` und `drivers/net/can/dev/` übersetzen nach der v6 und nach
+  jedem der Patches 9 bis 11 fehler- und warnungsfrei (gcc 13.3, `W=1`,
+  mit `CONFIG_PROVE_LOCKING`, `CONFIG_DEBUG_MUTEXES` und
+  `CONFIG_PROC_FS`). Kein vollständiger Kernel-Build.
+- Patch 1 bis 7 sind mit der Test-Suite (`sockopt_stall`,
+  `sockopt_churn`, `shared_sock`, `isotp_state_test` u. a.) unter lockdep
+  und KASAN gelaufen. Nachweis für Patch 6 und 7 mit `isotp_state_test`:
+  ohne beide schlagen alle vier Fälle fehl, mit beiden bestehen sie (Lauf
+  vom 16.11.2026 auf `7.4.0-rc3-locktest`, long, `debug_locks` danach 1).
+  Ein fehlgeschlagenes Flow Control im normalen Modus ist von User-Space
+  aus nicht gezielt auslösbar und nicht eigens getestet.
+- Patch 8 ist nur übersetzt, nicht auf M_CAN- oder pcan_usb_fd-Hardware
+  getestet.
 - Patch 9 und 10 sind nur übersetzt. Als Funktionstest bietet sich
   `sockopt_test` aus der Test-Suite an, das alle CAN_RAW- und
   CAN_ISOTP-Optionen setzt und zurückliest.
 - Patch 11 ist nur übersetzt; die memcg-Abrechnung selbst ist ungetestet.
-- checkpatch meldet für Patch 6, 7 und 9 bis 11 nichts außer den bei mir
-  unbekannten Commit-IDs in den `Fixes:`-Zeilen.
+- checkpatch meldet nichts außer den bei mir unbekannten Commit-IDs in
+  den `Fixes:`-Zeilen.
