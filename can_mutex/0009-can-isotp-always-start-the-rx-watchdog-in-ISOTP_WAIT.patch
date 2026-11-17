@@ -1,8 +1,8 @@
-From 5c5964a74d839d50fa948c5c38f8acb69e6dd729 Mon Sep 17 00:00:00 2001
+From b835930f360b2df3361e41e23ff3e1509f938c74 Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
-Date: Mon, 16 Nov 2026 18:23:22 +0000
-Subject: [PATCH] can: isotp: always start the rx watchdog in ISOTP_WAIT_DATA
- state
+Date: Tue, 17 Nov 2026 08:06:13 +0000
+Subject: [PATCH 09/10] can: isotp: always start the rx watchdog in
+ ISOTP_WAIT_DATA state
 
 The rx timeout watchdog is only started at the end of isotp_send_fc()
 and for consecutive frames inside a block in isotp_rcv_cf(). So
@@ -27,15 +27,19 @@ the transmission of the flow control frame does not matter.
 
 In listen mode a first frame that is not followed by consecutive
 frames now leads to ETIMEDOUT, like a missing consecutive frame inside
-a block already does.
+a block already does. So a listening socket reports a missing
+consecutive frame consistently, independent of its position in the
+PDU.
 
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Cc: stable@vger.kernel.org
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 ---
  net/can/isotp.c | 14 +++++++++-----
  1 file changed, 9 insertions(+), 5 deletions(-)
 
 diff --git a/net/can/isotp.c b/net/can/isotp.c
-index 4644a1533a..da5d0fc87b 100644
+index 8229b6a69e..41085cb2d6 100644
 --- a/net/can/isotp.c
 +++ b/net/can/isotp.c
 @@ -634,6 +634,10 @@ static int isotp_rcv_ff(struct sock *sk, struct canfd_frame *cf, int ae)

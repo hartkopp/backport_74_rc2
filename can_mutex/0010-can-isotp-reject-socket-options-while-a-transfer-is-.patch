@@ -1,7 +1,8 @@
-From d5c088144afac1880c1684ea9fc3e3f1b618e238 Mon Sep 17 00:00:00 2001
+From ca9048e12a2c278f90ae22c2fb69ad43f9a29e63 Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
-Date: Mon, 16 Nov 2026 16:48:07 +0000
-Subject: [PATCH] can: isotp: reject socket options while a transfer is active
+Date: Tue, 17 Nov 2026 08:06:19 +0000
+Subject: [PATCH 10/10] can: isotp: reject socket options while a transfer is
+ active
 
 isotp_setsockopt_locked() only checks so->bound before it changes the
 CAN_ISOTP socket options. When the bound CAN device is unregistered,
@@ -18,7 +19,9 @@ allocated with the former so->ll.mtu.
 isotp_bind() already rejects a new binding while so->tx.state or
 so->rx.state are not ISOTP_IDLE for the same reason. Add this check to
 isotp_setsockopt_locked() and return -EAGAIN, so the socket options can
-only be changed when no transfer is active.
+only be changed when no transfer is active. As the transmission and
+the reception always end by their timeouts at the latest, this state
+is only temporary.
 
 Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
 Reported-by: Sashiko <sashiko-bot@kernel.org>
@@ -30,10 +33,10 @@ Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
  1 file changed, 8 insertions(+)
 
 diff --git a/net/can/isotp.c b/net/can/isotp.c
-index 8229b6a69e..4644a1533a 100644
+index 41085cb2d6..da5d0fc87b 100644
 --- a/net/can/isotp.c
 +++ b/net/can/isotp.c
-@@ -1721,6 +1721,14 @@ static int isotp_setsockopt_locked(struct socket *sock, int optname,
+@@ -1725,6 +1725,14 @@ static int isotp_setsockopt_locked(struct socket *sock, int optname,
  	if (so->bound)
  		return -EISCONN;
  
