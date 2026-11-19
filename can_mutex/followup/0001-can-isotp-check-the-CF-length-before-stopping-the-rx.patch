@@ -1,0 +1,76 @@
+From 070f354aaf3a6215bdbdb00af204068469397522 Mon Sep 17 00:00:00 2001
+From: Oliver Hartkopp <socketcan@hartkopp.net>
+Date: Thu, 19 Nov 2026 14:30:30 +0000
+Subject: [PATCH] can: isotp: check the CF length before stopping the rx
+ timeout
+
+isotp_rcv_cf() stops the rx timeout with hrtimer_cancel() and then
+drops consecutive frames with an invalid length:
+
+- a CF that is longer than the first frame (cf->len > so->rx.ll_dl)
+- a CF that is shorter than the first frame but is not the last CF
+
+Both returns leave so->rx.state in ISOTP_WAIT_DATA without a running rx
+timeout. Commit "can: isotp: always start the rx timeout in
+ISOTP_WAIT_DATA state" added the rx timeout start for the regular
+reception paths, but these two early returns are not covered.
+
+Such a CF can be sent by any node on the bus. On a bound socket the
+next first frame or single frame resets the state. But when the CF is
+the last frame before the CAN device is removed, isotp_bind() and
+isotp_setsockopt() keep returning -EAGAIN until the socket is closed.
+
+Check the CF length before hrtimer_cancel(), so that an invalid CF is
+dropped and the running rx timeout is left untouched. Every return
+after hrtimer_cancel() now either ends the reception or restarts the rx
+timeout.
+
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Cc: stable@vger.kernel.org
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Closes: https://lore.kernel.org/linux-can/179504035916.3136.12986898667697830880@kernel.org/
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+---
+ net/can/isotp.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
+
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index 32c88749d7..187923995b 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -666,14 +666,6 @@ static int isotp_rcv_cf(struct sock *sk, struct canfd_frame *cf, int ae,
+ 		so->lastrxcf_tstamp = skb->tstamp;
+ 	}
+ 
+-	hrtimer_cancel(&so->rxtimer);
+-
+-	/* isotp_rx_timer_handler() may have raced us for so->rx.state
+-	 * while hrtimer_cancel() above waited for it to finish => recheck
+-	 */
+-	if (READ_ONCE(so->rx.state) != ISOTP_WAIT_DATA)
+-		return 1;
+-
+ 	/* CFs are never longer than the FF */
+ 	if (cf->len > so->rx.ll_dl)
+ 		return 1;
+@@ -685,6 +677,17 @@ static int isotp_rcv_cf(struct sock *sk, struct canfd_frame *cf, int ae,
+ 			return 1;
+ 	}
+ 
++	/* drop invalid CFs above without touching the rx timeout, so that
++	 * every return below either ends the reception or restarts it
++	 */
++	hrtimer_cancel(&so->rxtimer);
++
++	/* isotp_rx_timer_handler() may have raced us for so->rx.state
++	 * while hrtimer_cancel() above waited for it to finish => recheck
++	 */
++	if (READ_ONCE(so->rx.state) != ISOTP_WAIT_DATA)
++		return 1;
++
+ 	if ((cf->data[ae] & 0x0F) != so->rx.sn) {
+ 		/* wrong sn detected - report 'illegal byte sequence' */
+ 		sk->sk_err = EILSEQ;
+-- 
+2.43.0
+

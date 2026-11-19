@@ -104,3 +104,19 @@ identisch.
 - Patch 11 ist nur übersetzt; die memcg-Abrechnung selbst ist ungetestet.
 - checkpatch meldet nichts außer den bei mir unbekannten Commit-IDs in
   den `Fixes:`-Zeilen.
+
+## followup/: Fix zu Patch 6 (Sashiko-Review)
+
+`followup/0001-can-isotp-check-the-CF-length-before-stopping-the-rx.patch`
+verschiebt in `isotp_rcv_cf()` die beiden CF-Längenprüfungen vor
+`hrtimer_cancel()`. Ein ungültiger CF wird damit verworfen, ohne den
+laufenden Empfangs-Timeout anzuhalten; jeder Return nach
+`hrtimer_cancel()` beendet den Empfang oder startet den Timeout neu.
+`Reported-by: Sashiko` mit `Closes:` auf das Review zu Patch 6
+(`179504035916.3136.12986898667697830880@kernel.org`), `Fixes:
+e057dd3fc20f`, `Cc: stable`.
+
+Basis: Patches 1 bis 7 auf `067c5c24ce`. `net/can/` übersetzt mit `W=1`
+fehler- und warnungsfrei, checkpatch meldet nur die bei mir unbekannte
+Commit-ID in `Fixes:`. Kein Laufzeittest; `isotp_state_test` hat noch
+keinen Fall mit ungültigem CF.
