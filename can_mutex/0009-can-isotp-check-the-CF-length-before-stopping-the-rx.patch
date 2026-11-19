@@ -1,7 +1,7 @@
-From 070f354aaf3a6215bdbdb00af204068469397522 Mon Sep 17 00:00:00 2001
+From 9a405362e18e2e7a427ab7398bd201c8f82d9792 Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
 Date: Thu, 19 Nov 2026 14:30:30 +0000
-Subject: [PATCH] can: isotp: check the CF length before stopping the rx
+Subject: [PATCH 09/12] can: isotp: check the CF length before stopping the rx
  timeout
 
 isotp_rcv_cf() stops the rx timeout with hrtimer_cancel() and then
@@ -14,11 +14,6 @@ Both returns leave so->rx.state in ISOTP_WAIT_DATA without a running rx
 timeout. Commit "can: isotp: always start the rx timeout in
 ISOTP_WAIT_DATA state" added the rx timeout start for the regular
 reception paths, but these two early returns are not covered.
-
-Such a CF can be sent by any node on the bus. On a bound socket the
-next first frame or single frame resets the state. But when the CF is
-the last frame before the CAN device is removed, isotp_bind() and
-isotp_setsockopt() keep returning -EAGAIN until the socket is closed.
 
 Check the CF length before hrtimer_cancel(), so that an invalid CF is
 dropped and the running rx timeout is left untouched. Every return
@@ -71,6 +66,3 @@ index 32c88749d7..187923995b 100644
  	if ((cf->data[ae] & 0x0F) != so->rx.sn) {
  		/* wrong sn detected - report 'illegal byte sequence' */
  		sk->sk_err = EILSEQ;
--- 
-2.43.0
-

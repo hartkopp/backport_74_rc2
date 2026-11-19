@@ -48,28 +48,36 @@ Kleine-Budde die fünf Patches der v5 und Zhu Lings Patch 3/9.
   `[Hartkopp: ...]`-Notiz vermerkt. Zhus übrige Netlink-Patches aus dem
   Pull-Request (5/9 und 7/9) wenden unverändert auf Patch 8 an.
 
-## Patches 9 und 10: Folgepatches für can-next (kein Fix, nicht stable)
+## Patches 9 bis 11: Folgepatches für can-next
+
+| # | Patch | Fixes |
+|---|---|---|
+| 9 | can: isotp: check the CF length before stopping the rx timeout | `e057dd3fc20f` |
+| 10 | can: raw: read socket options under conf_lock in raw_getsockopt() | – |
+| 11 | can: isotp: read socket options under conf_lock in isotp_getsockopt() | – |
+
+- **Patch 9** ist der Folgefix zu Patch 6 aus dem Sashiko-Review
+  (`Reported-by: Sashiko`, `Closes:` auf
+  `179504035916.3136.12986898667697830880@kernel.org`, `Cc: stable`). Er
+  verschiebt in `isotp_rcv_cf()` die beiden CF-Längenprüfungen vor
+  `hrtimer_cancel()`. Ein ungültiger CF wird so verworfen, ohne den
+  laufenden Empfangs-Timeout anzuhalten; jeder Return nach
+  `hrtimer_cancel()` beendet den Empfang oder startet den Timeout neu.
+- **Patch 10 und 11** lesen die Optionswerte unter `conf_lock` in eine
+  lokale Variable und kopieren sie erst nach `mutex_unlock()` in den
+  User-Space. Sie setzen auf Patch 3 bzw. 4 auf und stellen den
+  Struct-Kommentar auf "sockopts". Sie sind kein Fix und nicht für stable.
+  Beide sind neu geschrieben und noch nicht gegengelesen; der
+  Signed-off-by des Autors ist als Vorschlag eingetragen.
+
+## Patch 12: memcg-Abrechnung für can-next (zurückgestellt)
 
 | # | Patch |
 |---|---|
-| 9 | can: raw: read socket options under conf_lock in raw_getsockopt() |
-| 10 | can: isotp: read socket options under conf_lock in isotp_getsockopt() |
-
-Beide lesen die Optionswerte unter `conf_lock` in eine lokale Variable und
-kopieren sie erst nach `mutex_unlock()` in den User-Space. Sie setzen auf
-Patch 3 bzw. 4 auf und stellen den Struct-Kommentar auf "sockopts".
-
-Diese beiden Patches sind neu geschrieben und noch nicht gegengelesen;
-der Signed-off-by des Autors ist als Vorschlag eingetragen.
-
-## Patch 11: memcg-Abrechnung für can-next (zurückgestellt)
-
-| # | Patch |
-|---|---|
-| 11 | can: enable memcg accounting for user triggered allocations |
+| 12 | can: enable memcg accounting for user triggered allocations |
 
 Der für v5 vorbereitete Stand ohne Abrechnung des isotp-RX-Puffers in
-`isotp_rcv_ff()` (dort nur ein Kommentar), auf Patch 10 aufgesetzt. Der
+`isotp_rcv_ff()` (dort nur ein Kommentar), auf Patch 11 aufgesetzt. Der
 Code ist gegenüber der vorbereiteten Fassung unverändert, die
 Changelog-Notizen unter dem `---` sind übernommen. Der Patch war Teil der
 Serie bis v4 und wird erst verschickt, wenn die Fixes in can-next
@@ -83,10 +91,10 @@ identisch.
 
 ## Prüfung
 
-- Die Dateien 1 bis 11 wenden in dieser Reihenfolge per `git am` auf die
+- Die Dateien 1 bis 12 wenden in dieser Reihenfolge per `git am` auf die
   Basis an.
 - `net/can/` und `drivers/net/can/dev/` übersetzen nach der v6 und nach
-  jedem der Patches 9 bis 11 fehler- und warnungsfrei (gcc 13.3, `W=1`,
+  jedem der Patches 9 bis 12 fehler- und warnungsfrei (gcc 13.3, `W=1`,
   mit `CONFIG_PROVE_LOCKING`, `CONFIG_DEBUG_MUTEXES` und
   `CONFIG_PROC_FS`). Kein vollständiger Kernel-Build.
 - Patch 1 bis 7 sind mit der Test-Suite (`sockopt_stall`,
@@ -98,25 +106,12 @@ identisch.
   aus nicht gezielt auslösbar und nicht eigens getestet.
 - Patch 8 ist nur übersetzt, nicht auf M_CAN- oder pcan_usb_fd-Hardware
   getestet.
-- Patch 9 und 10 sind nur übersetzt. Als Funktionstest bietet sich
+- Patch 9 ist nur übersetzt; `isotp_state_test` hat noch keinen Fall
+  mit ungültigem CF.
+- Patch 10 und 11 sind nur übersetzt. Als Funktionstest bietet sich
   `sockopt_test` aus der Test-Suite an, das alle CAN_RAW- und
   CAN_ISOTP-Optionen setzt und zurückliest.
-- Patch 11 ist nur übersetzt; die memcg-Abrechnung selbst ist ungetestet.
+- Patch 12 ist nur übersetzt; die memcg-Abrechnung selbst ist ungetestet.
 - checkpatch meldet nichts außer den bei mir unbekannten Commit-IDs in
   den `Fixes:`-Zeilen.
 
-## followup/: Fix zu Patch 6 (Sashiko-Review)
-
-`followup/0001-can-isotp-check-the-CF-length-before-stopping-the-rx.patch`
-verschiebt in `isotp_rcv_cf()` die beiden CF-Längenprüfungen vor
-`hrtimer_cancel()`. Ein ungültiger CF wird damit verworfen, ohne den
-laufenden Empfangs-Timeout anzuhalten; jeder Return nach
-`hrtimer_cancel()` beendet den Empfang oder startet den Timeout neu.
-`Reported-by: Sashiko` mit `Closes:` auf das Review zu Patch 6
-(`179504035916.3136.12986898667697830880@kernel.org`), `Fixes:
-e057dd3fc20f`, `Cc: stable`.
-
-Basis: Patches 1 bis 7 auf `067c5c24ce`. `net/can/` übersetzt mit `W=1`
-fehler- und warnungsfrei, checkpatch meldet nur die bei mir unbekannte
-Commit-ID in `Fixes:`. Kein Laufzeittest; `isotp_state_test` hat noch
-keinen Fall mit ungültigem CF.
