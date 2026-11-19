@@ -1,4 +1,4 @@
-From 9a405362e18e2e7a427ab7398bd201c8f82d9792 Mon Sep 17 00:00:00 2001
+From c56233f1a1accadfb02229b2ecf48690b564b6aa Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
 Date: Thu, 19 Nov 2026 14:30:30 +0000
 Subject: [PATCH 09/12] can: isotp: check the CF length before stopping the rx
@@ -26,11 +26,11 @@ Reported-by: Sashiko <sashiko-bot@kernel.org>
 Closes: https://lore.kernel.org/linux-can/179504035916.3136.12986898667697830880@kernel.org/
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 ---
- net/can/isotp.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ net/can/isotp.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
 diff --git a/net/can/isotp.c b/net/can/isotp.c
-index 32c88749d7..187923995b 100644
+index 32c88749d7..d0fbbe0392 100644
 --- a/net/can/isotp.c
 +++ b/net/can/isotp.c
 @@ -666,14 +666,6 @@ static int isotp_rcv_cf(struct sock *sk, struct canfd_frame *cf, int ae,
@@ -48,13 +48,11 @@ index 32c88749d7..187923995b 100644
  	/* CFs are never longer than the FF */
  	if (cf->len > so->rx.ll_dl)
  		return 1;
-@@ -685,6 +677,17 @@ static int isotp_rcv_cf(struct sock *sk, struct canfd_frame *cf, int ae,
+@@ -685,6 +677,15 @@ static int isotp_rcv_cf(struct sock *sk, struct canfd_frame *cf, int ae,
  			return 1;
  	}
  
-+	/* drop invalid CFs above without touching the rx timeout, so that
-+	 * every return below either ends the reception or restarts it
-+	 */
++	/* stop the rx timeout only for valid CFs (checked above) */
 +	hrtimer_cancel(&so->rxtimer);
 +
 +	/* isotp_rx_timer_handler() may have raced us for so->rx.state

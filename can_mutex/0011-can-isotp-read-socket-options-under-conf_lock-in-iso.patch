@@ -1,4 +1,4 @@
-From 5dba7ee5457bf3aab0408c0b9b32eb708c6a83e7 Mon Sep 17 00:00:00 2001
+From cba13590e053e9b61c3ad9efd51799c518fd7565 Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
 Date: Fri, 13 Nov 2026 11:00:14 +0000
 Subject: [PATCH 11/12] can: isotp: read socket options under conf_lock in
@@ -27,7 +27,7 @@ Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
  1 file changed, 25 insertions(+), 9 deletions(-)
 
 diff --git a/net/can/isotp.c b/net/can/isotp.c
-index 187923995b..75b7362167 100644
+index d0fbbe0392..db40449409 100644
 --- a/net/can/isotp.c
 +++ b/net/can/isotp.c
 @@ -182,7 +182,7 @@ struct isotp_sock {
@@ -39,7 +39,7 @@ index 187923995b..75b7362167 100644
  };
  
  static LIST_HEAD(isotp_notifier_list);
-@@ -1860,8 +1860,14 @@ static int isotp_getsockopt(struct socket *sock, int level, int optname,
+@@ -1858,8 +1858,14 @@ static int isotp_getsockopt(struct socket *sock, int level, int optname,
  {
  	struct sock *sk = sock->sk;
  	struct isotp_sock *so = isotp_sk(sk);
@@ -55,7 +55,7 @@ index 187923995b..75b7362167 100644
  
  	if (level != SOL_CAN_ISOTP)
  		return -EINVAL;
-@@ -1870,39 +1876,49 @@ static int isotp_getsockopt(struct socket *sock, int level, int optname,
+@@ -1868,39 +1874,49 @@ static int isotp_getsockopt(struct socket *sock, int level, int optname,
  	if (len < 0)
  		return -EINVAL;
  
