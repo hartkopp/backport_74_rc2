@@ -1,4 +1,4 @@
-From 9d6856a502002c09bb92e2515f1e22c4e9195f71 Mon Sep 17 00:00:00 2001
+From f3f93908d6a2199fedd7282447ec33a4c5682fc2 Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
 Date: Sat, 7 Nov 2026 12:05:33 +0100
 Subject: [PATCH 12/12] can: enable memcg accounting for user triggered
@@ -201,7 +201,7 @@ index dc9e289049..f3d93a2030 100644
  				kfree(op->frames);
  				kfree(op);
 diff --git a/net/can/isotp.c b/net/can/isotp.c
-index db40449409..416c7e7ae5 100644
+index fda31f98e6..e5af891c72 100644
 --- a/net/can/isotp.c
 +++ b/net/can/isotp.c
 @@ -609,7 +609,12 @@ static int isotp_rcv_ff(struct sock *sk, struct canfd_frame *cf, int ae)

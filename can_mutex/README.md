@@ -59,9 +59,11 @@ Kleine-Budde die fünf Patches der v5 und Zhu Lings Patch 3/9.
 - **Patch 9** ist der Folgefix zu Patch 6 aus dem Sashiko-Review
   (`Reported-by: Sashiko`, `Closes:` auf
   `179504035916.3136.12986898667697830880@kernel.org`, `Cc: stable`). Er
-  verschiebt in `isotp_rcv_cf()` die beiden CF-Längenprüfungen vor
+  stellt in `isotp_rcv_cf()` die beiden CF-Längenprüfungen an den
+  Anfang, vor die Zustandsprüfung, den `force_rx_stmin`-Block und
   `hrtimer_cancel()`. Ein ungültiger CF wird so verworfen, ohne den
-  laufenden Empfangs-Timeout anzuhalten; jeder Return nach
+  laufenden Empfangs-Timeout anzuhalten oder den Zeitstempel für
+  `CAN_ISOTP_FORCE_RXSTMIN` zu setzen; jeder Return nach
   `hrtimer_cancel()` beendet den Empfang oder startet den Timeout neu.
 - **Patch 10 und 11** lesen die Optionswerte unter `conf_lock` in eine
   lokale Variable und kopieren sie erst nach `mutex_unlock()` in den

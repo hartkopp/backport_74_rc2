@@ -1,4 +1,4 @@
-From cba13590e053e9b61c3ad9efd51799c518fd7565 Mon Sep 17 00:00:00 2001
+From d55b14a35c84a70d8b6959d4548b438f6a09fe0c Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
 Date: Fri, 13 Nov 2026 11:00:14 +0000
 Subject: [PATCH 11/12] can: isotp: read socket options under conf_lock in
@@ -27,7 +27,7 @@ Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
  1 file changed, 25 insertions(+), 9 deletions(-)
 
 diff --git a/net/can/isotp.c b/net/can/isotp.c
-index d0fbbe0392..db40449409 100644
+index 10eccaedeb..fda31f98e6 100644
 --- a/net/can/isotp.c
 +++ b/net/can/isotp.c
 @@ -182,7 +182,7 @@ struct isotp_sock {
