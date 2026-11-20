@@ -1,24 +1,24 @@
 From: Oliver Hartkopp <socketcan@hartkopp.net>
-Date: Tue, 17 Nov 2026 17:30:10 +0100
-Subject: [PATCH v6 2/8] can: bcm: do not remove the procfs entry in
+Date: Fri, 20 Nov 2026 12:22:15 +0100
+Subject: [PATCH v7 2/8] can: bcm: do not remove the procfs entry in
  bcm_notify()
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261117-can-bcmlock-memcg-v6-2-37104bf4eea8@hartkopp.net>
-References: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
-In-Reply-To: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
+Message-Id: <20261120-can-bcmlock-memcg-v7-2-bf826d3a6a34@hartkopp.net>
+References: <20261120-can-bcmlock-memcg-v7-0-bf826d3a6a34@hartkopp.net>
+In-Reply-To: <20261120-can-bcmlock-memcg-v7-0-bf826d3a6a34@hartkopp.net>
 To: linux-can@vger.kernel.org
 Cc: Marc Kleine-Budde <mkl@pengutronix.de>, 
  Oleksij Rempel <o.rempel@pengutronix.de>, 
  Vincent Mailhol <mailhol@kernel.org>, Zhu Ling <zhuling0805@qq.com>, 
  Oliver Hartkopp <socketcan@hartkopp.net>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794933008; l=5744;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795173733; l=5744;
  i=socketcan@hartkopp.net; s=20260128; h=from:subject:message-id;
  bh=5ZVj9zJbo3hpX3s/iiPgBkIURgOaGpGZNd2t5brt1xk=;
- b=nTOc4UB7KZATtnXmULhFJ8VFr9lOUTVK/04TJWDZqMhCwciRXWXISmGv+64hs5T7JusTB13f8
- D4K3tevg+qHDPdFEmBr6588kdjxAOJjrk/YtEmSh3VOiFvy4FYx+9IS
+ b=eLlGnZ4TxTuCJ7EmVlg9Vd8A5W2pkuBa/seYr72WDqDYnKEUEel30QD1H0CFYIWukUoBJI+uX
+ HymeWEQzrtmD4AvYEjVA07w6d3nopekxvx28EOYYgzoGNttvphyIwNE
 X-Developer-Key: i=socketcan@hartkopp.net; a=ed25519;
  pk=/gU/7/wBqak3kTsTeFbCCqUi9dnh+1i6ITEkfPj/BvU=
 

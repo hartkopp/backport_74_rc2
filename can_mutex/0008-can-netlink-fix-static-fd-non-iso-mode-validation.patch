@@ -1,23 +1,23 @@
 From: Oliver Hartkopp <socketcan@hartkopp.net>
-Date: Tue, 17 Nov 2026 17:30:16 +0100
-Subject: [PATCH v6 8/8] can: netlink: fix static FD-NON-ISO mode validation
+Date: Fri, 20 Nov 2026 12:22:21 +0100
+Subject: [PATCH v7 8/8] can: netlink: fix static FD-NON-ISO mode validation
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261117-can-bcmlock-memcg-v6-8-37104bf4eea8@hartkopp.net>
-References: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
-In-Reply-To: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
+Message-Id: <20261120-can-bcmlock-memcg-v7-8-bf826d3a6a34@hartkopp.net>
+References: <20261120-can-bcmlock-memcg-v7-0-bf826d3a6a34@hartkopp.net>
+In-Reply-To: <20261120-can-bcmlock-memcg-v7-0-bf826d3a6a34@hartkopp.net>
 To: linux-can@vger.kernel.org
 Cc: Marc Kleine-Budde <mkl@pengutronix.de>, 
  Oleksij Rempel <o.rempel@pengutronix.de>, 
  Vincent Mailhol <mailhol@kernel.org>, Zhu Ling <zhuling0805@qq.com>, 
  Oliver Hartkopp <socketcan@hartkopp.net>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794933008; l=3310;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795173733; l=3666;
  i=socketcan@hartkopp.net; s=20260128; h=from:subject:message-id;
- bh=Jcyp7DaVrbq4wHlDgGvCxc/oywDiIHnHVLfdhYJ/mjg=;
- b=Li+0b/2E/IB0binm9KxnETJpDoo1WfCGvx5LIb3U0y49PHqRPv+P0UIHSv/Az75r9ul+tSnUJ
- MpUKY4Zko4ADHHxq+uhvPgqpOg15q2qEwFQbPagCL+sbYoposHMez95
+ bh=f9ttjRqG9xjtV1yT99/wMidVxDZFE+6GChyHKQrSk98=;
+ b=riCgdWiqUMP/D8oJNpd8iFJ+4EyDzDyr7Xgu96xbzXT+PqdwAFX16rHUbbkbLI06N204cuL8p
+ 3lsPJK2unTDAHc29qjHO5PDkxnw9qi0tN+4H6aA5b7BI5GUBvLYcClP
 X-Developer-Key: i=socketcan@hartkopp.net; a=ed25519;
  pk=/gU/7/wBqak3kTsTeFbCCqUi9dnh+1i6ITEkfPj/BvU=
 
@@ -53,6 +53,11 @@ The request is rejected independent of the resulting CAN FD state, as
 accepting it while CAN FD is switched off would remove the static mode
 from priv->ctrlmode as well.
 
+Older kernels without the above mentioned commit do not need this fix.
+They can lose the static FD-NON-ISO mode by an explicit 'fd-non-iso off'
+too, but this only changes the reported control mode while the hardware
+keeps using non-ISO CAN FD.
+
 Fixes: 6742ca18cb41 ("can: netlink: add userland error messages")
 Cc: stable@vger.kernel.org
 Signed-off-by: Zhu Ling <zhuling0805@qq.com>
@@ -61,6 +66,10 @@ Link: https://lore.kernel.org/all/tencent_3A964832542399A780E646D6A6246335C409@q
  them, extend the commit message (Sashiko review)]
 Link: https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261115095746.709371-1-mkl%40pengutronix.de
 Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+---
+Changes in v7:
+- explain why kernels without 6742ca18cb41 do not need this fix
+  (Sashiko review)
 ---
  drivers/net/can/dev/netlink.c | 10 +++++++++-
  1 file changed, 9 insertions(+), 1 deletion(-)

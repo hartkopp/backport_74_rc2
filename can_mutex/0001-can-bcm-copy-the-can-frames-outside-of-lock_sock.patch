@@ -1,24 +1,24 @@
 From: Oliver Hartkopp <socketcan@hartkopp.net>
-Date: Tue, 17 Nov 2026 17:30:09 +0100
-Subject: [PATCH v6 1/8] can: bcm: copy the CAN frames outside of
+Date: Fri, 20 Nov 2026 12:22:14 +0100
+Subject: [PATCH v7 1/8] can: bcm: copy the CAN frames outside of
  lock_sock()
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261117-can-bcmlock-memcg-v6-1-37104bf4eea8@hartkopp.net>
-References: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
-In-Reply-To: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
+Message-Id: <20261120-can-bcmlock-memcg-v7-1-bf826d3a6a34@hartkopp.net>
+References: <20261120-can-bcmlock-memcg-v7-0-bf826d3a6a34@hartkopp.net>
+In-Reply-To: <20261120-can-bcmlock-memcg-v7-0-bf826d3a6a34@hartkopp.net>
 To: linux-can@vger.kernel.org
 Cc: Marc Kleine-Budde <mkl@pengutronix.de>, 
  Oleksij Rempel <o.rempel@pengutronix.de>, 
  Vincent Mailhol <mailhol@kernel.org>, Zhu Ling <zhuling0805@qq.com>, 
  Oliver Hartkopp <socketcan@hartkopp.net>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794933008; l=5572;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795173733; l=5572;
  i=socketcan@hartkopp.net; s=20260128; h=from:subject:message-id;
  bh=QGLUrnhSG67q2r2nuf1IxIWSOFNyrnyjacMQfSBZTNs=;
- b=TPTsLytZeVHJMX3wCgPbXD5OWigOqmX52dK1vE3KEGG6E8ceIKdSApavPZ26KgjKdBj62ztVw
- ZhjCB2IUZfRCyErEPYSqnd7PbeBmpJvrjJV5AE77XQqVw8Dbi54YrAz
+ b=BaKH3WnuwZzWjWaPBtyoGBFmfJSF5Fy2r6BGZq0WAcuw0+exbn09aSSmvEOvORCGAz+4k7Nwg
+ nRIsC6aa1vyBvoSpqKdOWbOFsspRnSjMgHmRakqJ7QZAQ9r7YtGdy87
 X-Developer-Key: i=socketcan@hartkopp.net; a=ed25519;
  pk=/gU/7/wBqak3kTsTeFbCCqUi9dnh+1i6ITEkfPj/BvU=
 

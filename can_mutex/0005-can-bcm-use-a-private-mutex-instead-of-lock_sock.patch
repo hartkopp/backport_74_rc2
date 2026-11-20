@@ -1,24 +1,24 @@
 From: Oliver Hartkopp <socketcan@hartkopp.net>
-Date: Tue, 17 Nov 2026 17:30:13 +0100
-Subject: [PATCH v6 5/8] can: bcm: use a private mutex instead of
+Date: Fri, 20 Nov 2026 12:22:18 +0100
+Subject: [PATCH v7 5/8] can: bcm: use a private mutex instead of
  lock_sock()
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261117-can-bcmlock-memcg-v6-5-37104bf4eea8@hartkopp.net>
-References: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
-In-Reply-To: <20261117-can-bcmlock-memcg-v6-0-37104bf4eea8@hartkopp.net>
+Message-Id: <20261120-can-bcmlock-memcg-v7-5-bf826d3a6a34@hartkopp.net>
+References: <20261120-can-bcmlock-memcg-v7-0-bf826d3a6a34@hartkopp.net>
+In-Reply-To: <20261120-can-bcmlock-memcg-v7-0-bf826d3a6a34@hartkopp.net>
 To: linux-can@vger.kernel.org
 Cc: Marc Kleine-Budde <mkl@pengutronix.de>, 
  Oleksij Rempel <o.rempel@pengutronix.de>, 
  Vincent Mailhol <mailhol@kernel.org>, Zhu Ling <zhuling0805@qq.com>, 
  Oliver Hartkopp <socketcan@hartkopp.net>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794933008; l=6640;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795173733; l=6640;
  i=socketcan@hartkopp.net; s=20260128; h=from:subject:message-id;
  bh=0fPGC/xxkkmtbXdS9A17N9QM2akwp0rkpZRZMjupUII=;
- b=cmxDJ3dY5wR/in3Hl2G72y4ka23PohjxAlj+GZ82GWjSVeucFgk36r37tYJojZsdK/L8VIfxW
- 390gbPP7NSSCPS+9B4TpKbJ6/3EUZu8IIfIF1z9vozT+TcMt13GC9Pm
+ b=Be2J6WMz2BLqaDL3N19VX4lgBVwKIWB2tzQi76Xp50rvEm1a04+2n6IWT/njZdj+JWMi4VykU
+ vU1EB1C5xwNA64zcp/KzvUR5D0JyXdx4G38uenHpuN6AEq76M6Fbntf
 X-Developer-Key: i=socketcan@hartkopp.net; a=ed25519;
  pk=/gU/7/wBqak3kTsTeFbCCqUi9dnh+1i6ITEkfPj/BvU=
 

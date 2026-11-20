@@ -1,7 +1,7 @@
-From f3f93908d6a2199fedd7282447ec33a4c5682fc2 Mon Sep 17 00:00:00 2001
+From 3803bad199e9ec83ac58456cd917793f71c712d8 Mon Sep 17 00:00:00 2001
 From: Oliver Hartkopp <socketcan@hartkopp.net>
 Date: Sat, 7 Nov 2026 12:05:33 +0100
-Subject: [PATCH 12/12] can: enable memcg accounting for user triggered
+Subject: [PATCH 11/11] can: enable memcg accounting for user triggered
  allocations
 
 Unprivileged users can create CAN sockets and trigger allocations that
@@ -201,7 +201,7 @@ index dc9e289049..f3d93a2030 100644
  				kfree(op->frames);
  				kfree(op);
 diff --git a/net/can/isotp.c b/net/can/isotp.c
-index fda31f98e6..e5af891c72 100644
+index 98a7e489ca..3b83507a8c 100644
 --- a/net/can/isotp.c
 +++ b/net/can/isotp.c
 @@ -609,7 +609,12 @@ static int isotp_rcv_ff(struct sock *sk, struct canfd_frame *cf, int ae)
@@ -218,7 +218,7 @@ index fda31f98e6..e5af891c72 100644
  	if (so->rx.len > so->rx.buflen && so->rx.buflen < max_pdu_size) {
  		u8 *newbuf = kmalloc(max_pdu_size, GFP_ATOMIC);
  
-@@ -1190,7 +1195,7 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+@@ -1194,7 +1199,7 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
  
  	/* PDU size > default => try max_pdu_size */
  	if (size > so->tx.buflen && so->tx.buflen < max_pdu_size) {
